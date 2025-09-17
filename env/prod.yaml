@@ -1,0 +1,6 @@
+project: your-prod-project-id
+service: simple-web-app
+region: us-central1
+secrets:
+  - API_KEY=projects/your-prod-project-id/secrets/API_KEY:latest
+

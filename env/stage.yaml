@@ -1,0 +1,5 @@
+project: vibes-471901
+service: vibes-app
+region: us-central1
+secrets:
+  - API_KEY=projects/vibes-471901/secrets/API_KEY:latest

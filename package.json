@@ -1,0 +1,28 @@
+{
+  "name": "simple-web-app-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Monorepo with client (Vite React TS), api (Express TS), and proxy (NGINX).",
+  "workspaces": [
+    "client",
+    "api",
+    "proxy"
+  ],
+  "scripts": {
+    "dev": "npm-run-all -p dev:api dev:client",
+    "dev:client": "npm --workspace client run dev",
+    "dev:api": "npm --workspace api run dev",
+    "build": "npm-run-all build:client build:api",
+    "build:client": "npm --workspace client run build",
+    "build:api": "npm --workspace api run build",
+    "start": "npm --workspace api run start",
+    "proxy": "npm --workspace proxy run start",
+    "format": "prettier --write .",
+    "test": "echo 'No tests yet' && exit 0"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.3.3"
+  }
+}
+

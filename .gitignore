@@ -1,0 +1,25 @@
+# Node
+node_modules/
+npm-debug.log*
+pnpm-lock.yaml
+yarn.lock
+
+# Build outputs
+dist/
+build/
+.turbo/
+
+# Env & secrets
+.env
+.env.*
+env/*.secrets
+
+# Editor
+.DS_Store
+.idea/
+.vscode/*.log
+
+# Runtime
+tmp/
+coverage/
+
