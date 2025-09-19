@@ -11,9 +11,11 @@
     "cli": "node --loader ts-node/esm src/cli.ts --help"
   },
   "dependencies": {
+    "@langchain/openai": "^0.6.13",
     "commander": "^12.1.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "tiny-lru": "^11.4.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {
