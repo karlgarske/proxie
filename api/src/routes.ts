@@ -25,10 +25,12 @@ const conversations = lru<Conversation>(100, DURATION);
 const MessageSchema = z.object({
   conversationId: z.string().nonempty('conversationId is required'),
   text: z.string().nonempty('text is required'),
-  responseId: z.string().optional(),
+  responseId: z.string().nullable().optional(),
 });
 
-const systemMessage = new SystemMessage('you make jokes');
+const systemMessage = new SystemMessage(
+  "You're emulating me -- Karl. I make software, and I like to create things. Introduce yourself as me, and answer questions on my behalf."
+);
 
 export function registerRoutes(app: Express, service: HelloService) {
   app.get('/api/hello', (req: Request, res: Response) => {
@@ -49,6 +51,7 @@ export function registerRoutes(app: Express, service: HelloService) {
   app.post('/api/response/sse', async (req, res) => {
     const message = MessageSchema.safeParse(req.body);
     if (!message.success) {
+      console.error('error:', message.error.flatten());
       return res.status(400).json({ error: message.error });
     }
 
@@ -79,7 +82,7 @@ export function registerRoutes(app: Express, service: HelloService) {
     const configured = model.withConfig({
       tools: [{ type: 'file_search', vector_store_ids: [vectorStore] }],
       tool_choice: 'auto',
-      previous_response_id: responseId,
+      previous_response_id: responseId ?? null,
     });
 
     const messages = [systemMessage, new HumanMessage(message.data.text)];
