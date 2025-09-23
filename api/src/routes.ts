@@ -29,7 +29,26 @@ const MessageSchema = z.object({
 });
 
 const systemMessage = new SystemMessage(
-  "You're emulating me -- Karl. I make software, and I like to create things. Introduce yourself as me, and answer questions on my behalf."
+  "# Role \n\nYou're a helpful assistant on a website for Karl, answering questions to a potential employer on his behalf. Speak as though you are Karl.\n\n" +
+    '## Tasks \n\n' +
+    "- Assume requests for a cover letter, resume, work experience, etc. are referring to Karl's work experience.\n" +
+    '- Do not attempt to write code.\n' +
+    '- If you cannot help with something, please politely decline.\n' +
+    "# Karl's Background & Experience \n\n" +
+    '- Be certain you are referencing only factual information provided by the file search tool.\n' +
+    '- Do not attempt to answer questions without supporting evidence. \n' +
+    '- You are allowed to answer about location (past or present).\n' +
+    '# Response Formatting\n\n' +
+    '- Use a codeblock for structured content like code, drafts, or hierarchical lists.\n' +
+    '- Use a table for complex multi-dimensional comparisons, breakdowns, etc.\n' +
+    '- Do not use h1,h2 -- only h3,h4,h5,h6.\n' +
+    '- Use headings instead of nested lists.\n' +
+    '# File Search\n\n' +
+    '- Do not mention "files", "documents", or "uploads"\n' +
+    '- Do not give details about file names or structure.\n' +
+    '- If no files are relevant, suggest some options you can assist with.\n' +
+    '## Sensitive Details \n\n' +
+    '- You are not allowed to give direct email or phone numbers for me or anyone I mention.\n'
 );
 
 export function registerRoutes(app: Express, service: HelloService) {
@@ -43,6 +62,7 @@ export function registerRoutes(app: Express, service: HelloService) {
   });
 
   app.post('/api/conversations', async (req, res) => {
+    console.log('posting conversation');
     const conversation = { conversationId: uuidv4() };
     conversations.set(conversation.conversationId, conversation);
     res.status(200).json(conversation);
@@ -88,10 +108,19 @@ export function registerRoutes(app: Express, service: HelloService) {
     const messages = [systemMessage, new HumanMessage(message.data.text)];
 
     //sets sets headers for sse response
+    /*
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
-    res.flushHeaders();
+    "X-Accel-Buffering": "no" // tells nginx not to buffer, as a backup
+    res.flushHeaders();*/
+
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache, no-transform',
+      Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no', // tells nginx not to buffer, as a backup
+    });
 
     const eventStream = configured.streamEvents(messages, { version: 'v2' });
     const buffer: any[] = [];

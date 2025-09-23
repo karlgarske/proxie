@@ -1,9 +1,0 @@
-{
-  "name": "proxy",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "start": "zsh ./dev-proxy.zsh"
-  }
-}
-

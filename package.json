@@ -1,5 +1,5 @@
 {
-  "name": "simple-web-app-monorepo",
+  "name": "vibes-monorepo",
   "private": true,
   "version": "0.1.0",
   "description": "Monorepo with client (Vite React TS), api (Express TS), and proxy (NGINX).",
@@ -23,8 +23,5 @@
   "devDependencies": {
     "npm-run-all": "^4.1.5",
     "prettier": "^3.3.3"
-  },
-  "dependencies": {
-    "uuid": "^13.0.0"
   }
 }

@@ -28,7 +28,7 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem
+    --radius: 0.5rem;
   }
   .dark {
     --background: 222.2 84% 4.9%;
@@ -54,7 +54,7 @@
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%
+    --chart-5: 340 75% 55%;
   }
 }
 
@@ -64,5 +64,72 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .markdown-container {
+    @apply bg-inherit text-muted-foreground text-2xl;
+  }
+
+  .markdown-container :is(ul, ol) {
+    @apply list-disc list-outside pl-2 mb-1 ml-6 [&>li]:mt-1;
+  }
+
+  .markdown-container h3 {
+    @apply scroll-m-20 text-3xl font-semibold tracking-normal mt-6 mb-4;
+  }
+
+  .markdown-container h4 {
+    @apply scroll-m-20 text-2xl font-semibold tracking-normal py-2 mt-2 mb-2;
+  }
+
+  .markdown-container h5,
+  h6 {
+    @apply scroll-m-20 text-xl font-semibold py-1;
+  }
+
+  .markdown-container hr {
+    @apply py-4;
+  }
+
+  .markdown-container a {
+    @apply font-mono text-xs;
+  }
+
+  .markdown-container p {
+    @apply my-4 leading-tight accent-foreground;
+  }
+
+  .markdown-container li > p {
+    @apply my-2 leading-tight accent-foreground;
+  }
+
+  .markdown-container table {
+    @apply text-left my-2 last:border-b-0;
+  }
+
+  .markdown-container th {
+    @apply font-semibold py-2 pr-4;
+  }
+
+  .markdown-container tr {
+    @apply border-b border-card pr-4;
+  }
+
+  .markdown-container td {
+    @apply pr-4 py-2;
+  }
+
+  .markdown-container pre {
+    @apply text-sm p-4 rounded-lg whitespace-pre-wrap break-words border-card bg-muted my-4 text-muted-foreground;
+  }
+
+  .markdown-container code:not(pre code) {
+    @apply bg-muted text-muted-foreground text-sm px-2 py-1 border rounded-lg whitespace-pre-wrap;
+  }
+
+  .markdown-container blockquote {
+    @apply border rounded-md p-2;
   }
 }

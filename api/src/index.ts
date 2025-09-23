@@ -10,7 +10,18 @@ const service = createHelloServiceFromEnv();
 registerRoutes(app, service);
 
 const PORT = 3001; // fixed per requirements
-app.listen(PORT, () => {
-  console.log(`API server listening on http://localhost:${PORT}`);
-});
+//const PORT = process.env.PORT ?? 3001;
 
+try {
+  const server = app.listen(PORT, () => {
+    console.log(`API server listening on http://localhost:${PORT}`);
+  });
+
+  server.on('error', (err) => {
+    console.error('API server failed to start', err);
+    process.exit(1);
+  });
+} catch (error) {
+  console.error('Unexpected error while starting API server', error);
+  process.exit(1);
+}

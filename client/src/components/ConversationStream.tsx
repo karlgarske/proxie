@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 type ConversationStreamProps = {
   conversationId?: string;
   promptText?: string;
   submissionKey?: number;
+  debug?: boolean;
 };
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
@@ -13,6 +15,7 @@ export function ConversationStream({
   conversationId,
   promptText,
   submissionKey,
+  debug = false,
 }: ConversationStreamProps) {
   const [status, setStatus] = useState<'idle' | 'connecting' | 'streaming' | 'finished' | 'error'>(
     'idle'
@@ -20,6 +23,8 @@ export function ConversationStream({
   const [error, setError] = useState<string | null>(null);
   const [transcript, setTranscript] = useState('');
   const [responseId, setResponseId] = useState<string | null>(null);
+  const responseIdRef = useRef<string | null>(null);
+  const hasReceivedStreamContentRef = useRef(false);
 
   useEffect(() => {
     if (!conversationId || !promptText || submissionKey == null) {
@@ -27,6 +32,8 @@ export function ConversationStream({
       setError(null);
       setTranscript('');
       setResponseId(null);
+      responseIdRef.current = null;
+      hasReceivedStreamContentRef.current = false;
       return;
     }
 
@@ -35,6 +42,7 @@ export function ConversationStream({
 
     setTranscript('');
     setResponseId(null);
+    hasReceivedStreamContentRef.current = false;
 
     const handleEvent = (payload: string) => {
       if (cancelled) return;
@@ -42,6 +50,7 @@ export function ConversationStream({
         const parsed = JSON.parse(payload);
         console.log('SSE event', parsed);
         if (parsed?.event === 'data' && typeof parsed.text === 'string') {
+          hasReceivedStreamContentRef.current = true;
           setTranscript((prev) => prev + parsed.text);
         } else if (
           parsed?.event === 'ended' &&
@@ -49,6 +58,7 @@ export function ConversationStream({
           typeof parsed.result === 'object' &&
           typeof parsed.result.responseId === 'string'
         ) {
+          responseIdRef.current = parsed.result.responseId;
           setResponseId(parsed.result.responseId);
         }
       } catch (jsonError) {
@@ -73,7 +83,7 @@ export function ConversationStream({
           body: JSON.stringify({
             conversationId,
             text: promptText,
-            responseId: responseId,
+            responseId: responseIdRef.current,
           }),
           signal: controller.signal,
         });
@@ -150,27 +160,37 @@ export function ConversationStream({
     return null;
   }
 
+  const showLoadingMessage =
+    status === 'streaming' && !hasReceivedStreamContentRef.current && !error;
+
   return (
-    <div className="p-4 rounded-md border space-y-2">
-      <p className="text-sm font-medium">Streaming conversation…</p>
-      <dl className="text-xs space-y-1">
-        <div>
-          <dt className="font-semibold">Conversation ID</dt>
-          <dd className="truncate">{conversationId}</dd>
+    <>
+      {debug && (
+        <div className="space-y-2">
+          <p className="text-sm font-medium">Debug</p>
+          <dl className="text-xs space-y-1">
+            <div>
+              <dt className="font-semibold">Conversation ID</dt>
+              <dd className="truncate">{conversationId}</dd>
+            </div>
+            <div>
+              <dt className="font-semibold">Status</dt>
+              <dd className="capitalize">{status}</dd>
+            </div>
+            {responseId && (
+              <div>
+                <dt className="font-semibold">Response ID</dt>
+                <dd className="truncate">{responseId}</dd>
+              </div>
+            )}
+          </dl>
         </div>
-        <div>
-          <dt className="font-semibold">Status</dt>
-          <dd className="capitalize">{status}</dd>
-        </div>
-        {responseId && (
-          <div>
-            <dt className="font-semibold">Response ID</dt>
-            <dd className="truncate">{responseId}</dd>
-          </div>
-        )}
-      </dl>
+      )}
       {error && <p className="text-xs text-red-600">Error: {error}</p>}
-      <ReactMarkdown className="text-sm whitespace-pre-wrap">{transcript}</ReactMarkdown>
-    </div>
+      {showLoadingMessage && <p className="text-sm text-muted-foreground">Thinking…</p>}
+      <div className="markdown-container">
+        <ReactMarkdown remarkPlugins={[remarkGfm]} children={transcript} />
+      </div>
+    </>
   );
 }
