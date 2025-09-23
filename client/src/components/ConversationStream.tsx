@@ -89,11 +89,15 @@ export function ConversationStream({
         });
 
         if (!response.ok) {
-          throw new Error(`Request failed: ${response.status}`);
+          console.error(`Status:${response.status} - ${response.body}`);
+          let message = `Oops! Something went wrong :( Try refreshing.`;
+          if (response.status == 404)
+            message = `It looks like our conversation automatically expired to help protect our privacy. Please refresh.`;
+          throw new Error(message);
         }
 
         if (!response.body) {
-          throw new Error('Readable stream missing from response');
+          throw new Error('Yikes! I had trouble responding :(');
         }
 
         const reader = response.body.getReader();
@@ -186,9 +190,10 @@ export function ConversationStream({
           </dl>
         </div>
       )}
-      {error && <p className="text-xs text-red-600">Error: {error}</p>}
+
       {showLoadingMessage && <p className="text-sm text-muted-foreground">Thinking…</p>}
       <div className="markdown-container">
+        {error && <p className="text-red-600">{error}</p>}
         <ReactMarkdown remarkPlugins={[remarkGfm]} children={transcript} />
       </div>
     </>
