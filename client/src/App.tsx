@@ -2,12 +2,7 @@ import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ConversationStream } from '@/components/ConversationStream';
 import { useConversations } from '@/hooks/useConversations';
-import {
-  CircleQuestionMarkIcon,
-  MessageCircleIcon,
-  MessageSquareIcon,
-  Sparkle,
-} from 'lucide-react';
+import { CircleQuestionMarkIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 type PromptSubmission = {
@@ -83,9 +78,9 @@ export function App() {
         <li className="after:content-['|'] after:px-2 last:after:content-['']">
           <Link to="https://www.linkedin.com/in/karlgarske">LinkedIn</Link>
         </li>
-        <li className="after:content-['|'] after:px-2 last:after:content-['']">
+        {/*<li className="after:content-['|'] after:px-2 last:after:content-['']">
           <Link to="https://github.com/karlgarske">GitHub</Link>
-        </li>
+        </li>*/}
       </ul>
       <div className="font-semibold">Ask Me Anything</div>
       <form
@@ -113,7 +108,7 @@ export function App() {
       )}
       <div id="chat" className="max-w-[680px]">
         <h1 className="text-5xl md:text-6xl font-bold">
-          Greetings! I'm Karl, and I made this site so we can get to know each other better!
+          Greetings! I'm Karl, and I made this site so we can get to know each other better.
         </h1>
 
         {submission && (

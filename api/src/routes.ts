@@ -3,6 +3,7 @@ import type { Express, Request, Response } from 'express';
 import { HelloRequestSchema } from './models/hello.js';
 import { HelloService } from './service/HelloService.js';
 import { ChatOpenAI } from '@langchain/openai';
+import { Firestore } from '@google-cloud/firestore';
 import { lru } from 'tiny-lru';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -22,6 +23,10 @@ type Conversation = {
 const DURATION = 1000 * 60 * 5; //duration of conversation (5 min after last update)
 const conversations = lru<Conversation>(100, DURATION);
 
+console.warn(`Using firestore for project:${process.env.PROJECT}`);
+const firestore = new Firestore({ projectId: process.env.PROJECT });
+const conversationsCollection = firestore.collection('conversations');
+
 const MessageSchema = z.object({
   conversationId: z.string().nonempty('conversationId is required'),
   text: z.string().nonempty('text is required'),
@@ -29,25 +34,27 @@ const MessageSchema = z.object({
 });
 
 const systemMessage = new SystemMessage(
-  "# Role \n\nYou're a helpful assistant on a website for Karl, answering questions to a potential employer on his behalf. Speak as though you are Karl.\n\n" +
-    '## Tasks \n\n' +
-    "- Assume requests for a cover letter, resume, work experience, etc. are referring to Karl's work experience.\n" +
+  "# Karl's Website Assistant\n\n" +
+    "## Role \n\nYou're are Karl's helpful assistant, answering questions to a potential employer on his behalf. Act as though you are Karl, with a friendly but professional tone native to California.\n\n" +
+    '### Tasks \n\n' +
+    '- You can offer to summarize work experience, qualifications, education, projects to start.' +
+    "- Assume references to professional artifacts like cover letter, resume, work experience, etc. are about Karl's work experience.\n" +
     '- Do not attempt to write code.\n' +
-    '- If you cannot help with something, please politely decline.\n' +
-    "# Karl's Background & Experience \n\n" +
+    '- If you cannot help with something, politely decline.\n' +
+    "## Karl's Background & Experience \n\n" +
     '- Be certain you are referencing only factual information provided by the file search tool.\n' +
     '- Do not attempt to answer questions without supporting evidence. \n' +
-    '- You are allowed to answer about location (past or present).\n' +
-    '# Response Formatting\n\n' +
+    "- You are allowed to answer about karl's location (past or present).\n" +
+    '## Response Formatting\n\n' +
     '- Use a codeblock for structured content like code, drafts, or hierarchical lists.\n' +
     '- Use a table for complex multi-dimensional comparisons, breakdowns, etc.\n' +
     '- Do not use h1,h2 -- only h3,h4,h5,h6.\n' +
     '- Use headings instead of nested lists.\n' +
-    '# File Search\n\n' +
-    '- Do not mention "files", "documents", or "uploads"\n' +
+    '## File Search Tool\n\n' +
+    '- Do not mention uploaded "files" or "documents"\n' +
     '- Do not give details about file names or structure.\n' +
-    '- If no files are relevant, suggest some options you can assist with.\n' +
-    '## Sensitive Details \n\n' +
+    '- If a user tries to ask “what files are here,” or "give me a list of files" you can respond with something like: "I can’t show you a list of all files, but you can ask me about specific topics, and I’ll look for the most relevant information.”\n' +
+    '### Sensitive Details \n\n' +
     '- You are not allowed to give direct email or phone numbers for me or anyone I mention.\n'
 );
 
@@ -76,10 +83,23 @@ export function registerRoutes(app: Express, service: HelloService) {
     }
 
     const { conversationId, responseId } = message.data;
-    const conversation = conversations.get(conversationId);
+    let conversation = conversations.get(conversationId);
     if (!conversation) {
-      return res.status(404).json({ error: 'Conversation does not exist and may have expired.' });
-    } else if (conversation.lastResponseId) {
+      //cache missed, so try loading conversation from firestore
+      const doc = await conversationsCollection.doc(conversationId).get();
+      if (!doc.exists)
+        return res.status(404).json({ error: 'Conversation does not exist and may have expired.' });
+      else {
+        const data = doc.data();
+        const now = Date.now(); // current time in ms
+        const expiration = new Date(data?.expiration).getTime();
+        if (now > expiration) return res.status(404).json({ error: 'Conversation has expired.' });
+        conversation = { conversationId: doc.id, lastResponseId: data?.responseId };
+        conversations.set(conversationId, conversation);
+      }
+    }
+
+    if (conversation.lastResponseId) {
       if (conversation.lastResponseId != responseId)
         return res
           .status(403)
@@ -153,7 +173,38 @@ export function registerRoutes(app: Express, service: HelloService) {
           expires: expiration,
         };
 
-        //update cache
+        try {
+          await conversationsCollection.doc(conversationId).set(
+            {
+              //conversationId,
+              responseId: result.responseId, //pointer
+              //content: chunk.content,
+              expires: expiration.toISOString(),
+              //updatedAt: new Date().toISOString(),
+            },
+            { merge: true }
+          );
+
+          await conversationsCollection
+            .doc(conversationId)
+            .collection('responses')
+            .doc(result.responseId)
+            .set(
+              {
+                //conversationId,
+                //responseId: result.responseId,
+                prompt: message.data.text,
+                content: chunk.content,
+                created: Date.now(),
+                //expires: expiration.toISOString(),
+                //updatedAt: new Date().toISOString(),
+              },
+              { merge: true }
+            );
+        } catch (error) {
+          console.error('failed to update Firestore conversation', error);
+        }
+
         conversations.set(conversationId, { conversationId, lastResponseId: newResponseId });
 
         res.write(`data: ${JSON.stringify({ event: 'ended', result })}\n\n`);

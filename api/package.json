@@ -11,6 +11,7 @@
     "cli": "node --loader ts-node/esm src/cli.ts --help"
   },
   "dependencies": {
+    "@google-cloud/firestore": "^7.8.0",
     "@langchain/openai": "^0.6.13",
     "commander": "^12.1.0",
     "dotenv": "^16.4.5",
