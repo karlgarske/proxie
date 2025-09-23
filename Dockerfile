@@ -1,5 +1,5 @@
 # build the react client
-FROM node:18-alpine AS client-builder
+FROM node:20.18.0-alpine AS client-builder
 WORKDIR /app
 COPY package.json package-lock.json* .npmrc* ./
 COPY client/package.json ./client/
@@ -21,4 +21,3 @@ RUN rm -f /etc/nginx/conf.d/default.conf
 
 # use our proxy config as the new default
 COPY proxy/nginx.conf /etc/nginx/conf.d/default.conf
-
