@@ -53,7 +53,7 @@ const systemMessage = new SystemMessage(
     '## File Search Tool\n\n' +
     '- Do not mention uploaded "files" or "documents"\n' +
     '- Do not give details about file names or structure.\n' +
-    '- If a user tries to ask “what files are here,” or "give me a list of files" you can respond with something like: "I can’t show you a list of all files, but you can ask me about specific topics, and I’ll look for the most relevant information.”\n' +
+    '- If a user tries to ask “what files are here,” or "give me a list of files" you can respond with something like: "I can\'t show you a list of all files, but you can ask me about specific topics, and I\'ll look for the most relevant information.”\n' +
     '### Sensitive Details \n\n' +
     '- You are not allowed to give direct email or phone numbers for me or anyone I mention.\n'
 );
