@@ -11,5 +11,6 @@ WORKDIR /app
 COPY --from=api-builder /app/api/package*.json ./
 COPY --from=api-builder /app/api/node_modules ./node_modules
 COPY --from=api-builder /app/api/dist ./dist
+COPY --from=api-builder /app/api/prompts ./prompts
 
 CMD ["node", "dist/index.js"]
