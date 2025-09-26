@@ -1,12 +1,21 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+
+export type ConversationStreamStatus = 'idle' | 'connecting' | 'streaming' | 'finished' | 'error';
+
+export type ConversationStreamEvent =
+  | { type: 'status'; status: ConversationStreamStatus }
+  | { type: 'chunk'; text: string }
+  | { type: 'response-ended'; responseId: string }
+  | { type: 'error'; error: string };
 
 type ConversationStreamProps = {
   conversationId?: string;
   promptText?: string;
   submissionKey?: number;
   debug?: boolean;
+  onEvent?: (event: ConversationStreamEvent) => void;
 };
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
@@ -16,19 +25,37 @@ export function ConversationStream({
   promptText,
   submissionKey,
   debug = false,
+  onEvent,
 }: ConversationStreamProps) {
-  const [status, setStatus] = useState<'idle' | 'connecting' | 'streaming' | 'finished' | 'error'>(
-    'idle'
-  );
+  const [status, setStatus] = useState<ConversationStreamStatus>('idle');
   const [error, setError] = useState<string | null>(null);
   const [transcript, setTranscript] = useState('');
   const [responseId, setResponseId] = useState<string | null>(null);
   const responseIdRef = useRef<string | null>(null);
   const hasReceivedStreamContentRef = useRef(false);
 
+  const dispatchStreamEvent = useCallback(
+    (event: ConversationStreamEvent) => {
+      onEvent?.(event);
+    },
+    [onEvent]
+  );
+
+  const updateStatus = useCallback(
+    (nextStatus: ConversationStreamStatus) => {
+      setStatus(nextStatus);
+      dispatchStreamEvent({ type: 'status', status: nextStatus });
+    },
+    [dispatchStreamEvent]
+  );
+
+  useEffect(() => {
+    dispatchStreamEvent({ type: 'status', status: 'idle' });
+  }, [dispatchStreamEvent]);
+
   useEffect(() => {
     if (!conversationId || !promptText || submissionKey == null) {
-      setStatus('idle');
+      updateStatus('idle');
       setError(null);
       setTranscript('');
       setResponseId(null);
@@ -52,6 +79,7 @@ export function ConversationStream({
         if (parsed?.event === 'data' && typeof parsed.text === 'string') {
           hasReceivedStreamContentRef.current = true;
           setTranscript((prev) => prev + parsed.text);
+          dispatchStreamEvent({ type: 'chunk', text: parsed.text });
         } else if (
           parsed?.event === 'ended' &&
           parsed?.result &&
@@ -60,6 +88,10 @@ export function ConversationStream({
         ) {
           responseIdRef.current = parsed.result.responseId;
           setResponseId(parsed.result.responseId);
+          dispatchStreamEvent({
+            type: 'response-ended',
+            responseId: parsed.result.responseId,
+          });
         }
       } catch (jsonError) {
         console.log('SSE event', payload);
@@ -72,7 +104,7 @@ export function ConversationStream({
     };
 
     const stream = async () => {
-      setStatus('connecting');
+      updateStatus('connecting');
       setError(null);
 
       try {
@@ -120,7 +152,7 @@ export function ConversationStream({
           }
 
           buffer += decoder.decode(value, { stream: true });
-          setStatus('streaming');
+          updateStatus('streaming');
 
           let separatorIndex = buffer.indexOf('\n\n');
           while (separatorIndex !== -1) {
@@ -140,14 +172,16 @@ export function ConversationStream({
         }
 
         if (!cancelled) {
-          setStatus('finished');
+          updateStatus('finished');
         }
       } catch (streamError) {
         if ((streamError as DOMException).name === 'AbortError') {
           return;
         }
-        setStatus('error');
-        setError((streamError as Error).message);
+        const errorMessage = (streamError as Error).message;
+        updateStatus('error');
+        setError(errorMessage);
+        dispatchStreamEvent({ type: 'error', error: errorMessage });
         console.error('SSE error', streamError);
       }
     };
@@ -158,7 +192,7 @@ export function ConversationStream({
       cancelled = true;
       controller.abort();
     };
-  }, [conversationId, promptText, submissionKey]);
+  }, [conversationId, promptText, submissionKey, updateStatus, dispatchStreamEvent]);
 
   if (!conversationId) {
     return null;

@@ -1,16 +1,25 @@
-import { FormEvent, useEffect, useRef, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ConversationStream } from '@/components/ConversationStream';
+import type { ConversationStreamEvent } from '@/components/ConversationStream';
 import { useConversations } from '@/hooks/useConversations';
 import { CircleQuestionMarkIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+import { useTheme } from '@/components/theme-provider';
 
 type PromptSubmission = {
   id: number;
   text: string;
 };
 
+/*
+refleck
+reflek.tech
+*/
 export function App() {
+  const { setTheme } = useTheme();
+  setTheme('system');
   const {
     mutate: createConversation,
     data: conversation,
@@ -22,6 +31,23 @@ export function App() {
   const [conversationId, setConversationId] = useState<string>();
   const [controlsVisible, setControlsVisible] = useState(false);
   const promptInputRef = useRef<HTMLInputElement>(null);
+  const [thinking, setThinking] = useState<boolean>(false);
+
+  const handleConversationStreamEvent = useCallback(
+    (event: ConversationStreamEvent) => {
+      if (event.type === 'status' && event.status === 'finished') {
+        setThinking(false);
+        //requestAnimationFrame(() => promptInputRef.current?.focus());
+      } else if (event.type == 'status' && event.status == 'connecting') {
+        setThinking(true);
+      }
+
+      if (event.type === 'error') {
+        console.error('Conversation stream error:', event.error);
+      }
+    },
+    [promptInputRef]
+  );
 
   useEffect(() => {
     createConversation(undefined, {
@@ -92,7 +118,7 @@ export function App() {
           type="text"
           value={prompt}
           onChange={(event) => setPrompt(event.target.value)}
-          className="flex-1 min-w-0 md:min-w-[300px] rounded border-2 border-primary px-3 py-2 text-3xl focus:outline-none focus:border-black focus:ring-2 focus:ring-black"
+          className="flex-1 min-w-0 md:min-w-[300px] rounded border-2 border-primary px-3 py-2 text-3xl focus:outline-none focus:border-black focus:ring-2 focus:ring-black text-primary-foreground"
           placeholder="Ask me anything"
           inputMode="text"
           enterKeyHint="send"
@@ -115,17 +141,17 @@ export function App() {
 
         {submission && (
           <div className="flex gap-2 justify-start items-center w-fit bg-yellow-200 rounded-full p-4 mt-12 mb-6">
-            <CircleQuestionMarkIcon strokeWidth="2.5" />
-            <div className="text-xl">{submission?.text}</div>
+            <CircleQuestionMarkIcon strokeWidth="2.5" className="text-primary-foreground" />
+            <div className="text-xl text-primary-foreground">{submission?.text}</div>
           </div>
         )}
-
         <div className="flex justify-start mb-[400px]">
           <ConversationStream
             conversationId={conversationId}
             promptText={submission?.text}
             submissionKey={submission?.id}
             debug={false}
+            onEvent={handleConversationStreamEvent}
           />
         </div>
       </div>
