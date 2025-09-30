@@ -2,7 +2,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-export type ConversationStreamStatus = 'idle' | 'connecting' | 'streaming' | 'finished' | 'error';
+export enum ConversationStreamStatus {
+  Idle = 'idle',
+  Connecting = 'connecting',
+  Streaming = 'streaming',
+  Finished = 'finished',
+  Error = 'error',
+}
 
 export type ConversationStreamEvent =
   | { type: 'status'; status: ConversationStreamStatus }
@@ -27,7 +33,7 @@ export function ConversationStream({
   debug = false,
   onEvent,
 }: ConversationStreamProps) {
-  const [status, setStatus] = useState<ConversationStreamStatus>('idle');
+  const [status, setStatus] = useState<ConversationStreamStatus>(ConversationStreamStatus.Idle);
   const [error, setError] = useState<string | null>(null);
   const [transcript, setTranscript] = useState('');
   const [responseId, setResponseId] = useState<string | null>(null);
@@ -50,12 +56,13 @@ export function ConversationStream({
   );
 
   useEffect(() => {
-    dispatchStreamEvent({ type: 'status', status: 'idle' });
+    dispatchStreamEvent({ type: 'status', status: ConversationStreamStatus.Idle });
   }, [dispatchStreamEvent]);
 
   useEffect(() => {
     if (!conversationId || !promptText || submissionKey == null) {
-      updateStatus('idle');
+      //there is no need for a stream yet
+      updateStatus(ConversationStreamStatus.Idle);
       setError(null);
       setTranscript('');
       setResponseId(null);
@@ -103,59 +110,73 @@ export function ConversationStream({
       handleEvent(dataPayload);
     };
 
+    const handleStreamError = (streamError: unknown) => {
+      if ((streamError as DOMException).name === 'AbortError') {
+        return;
+      }
+      const errorMessage = (streamError as Error).message;
+      updateStatus(ConversationStreamStatus.Error);
+      setError(errorMessage);
+      dispatchStreamEvent({ type: 'error', error: errorMessage });
+      console.error('SSE error', streamError);
+    };
+
+    const fetchResponse = async () => {
+      return await fetch(`${API_BASE}/api/response/sse`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          conversationId,
+          text: promptText,
+          responseId: responseIdRef.current,
+        }),
+        signal: controller.signal,
+      });
+    };
+
+    const validateResponse = (response: Response) => {
+      if (!response.ok) {
+        console.error(`Status:${response.status} - ${response.body}`);
+        let message = `Oops! Something went wrong :( Try refreshing.`;
+        if (response.status == 404)
+          message = `It looks like our conversation automatically expired to help protect our privacy. Please refresh.`;
+        throw new Error(message);
+      }
+
+      if (!response.body) {
+        throw new Error('Yikes! I had trouble responding :(');
+      }
+    };
+
     const stream = async () => {
-      updateStatus('connecting');
+      updateStatus(ConversationStreamStatus.Connecting);
       setError(null);
 
       try {
-        const response = await fetch(`${API_BASE}/api/response/sse`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            conversationId,
-            text: promptText,
-            responseId: responseIdRef.current,
-          }),
-          signal: controller.signal,
-        });
+        const response = await fetchResponse();
+        validateResponse(response);
 
-        if (!response.ok) {
-          console.error(`Status:${response.status} - ${response.body}`);
-          let message = `Oops! Something went wrong :( Try refreshing.`;
-          if (response.status == 404)
-            message = `It looks like our conversation automatically expired to help protect our privacy. Please refresh.`;
-          throw new Error(message);
-        }
-
-        if (!response.body) {
-          throw new Error('Yikes! I had trouble responding :(');
-        }
-
-        const reader = response.body.getReader();
+        const reader = response.body!.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
 
-        const flushBuffer = () => {
-          buffer
-            .split('\n')
-            .filter((line) => line.startsWith('data:'))
-            .forEach(processLine);
-          buffer = '';
-        };
-
         while (!cancelled) {
+          //keep reading each data chunk into buffer as it comes in as long as not cancelled by unmount or deps change
           const { value, done } = await reader.read();
           if (done) {
             buffer += decoder.decode();
             break;
           }
 
+          //append the decoded value to the buffer
           buffer += decoder.decode(value, { stream: true });
-          updateStatus('streaming');
+          updateStatus(ConversationStreamStatus.Streaming);
 
+          //process any full events (separated by double newlines)
           let separatorIndex = buffer.indexOf('\n\n');
           while (separatorIndex !== -1) {
+            // there is at least one full event in the buffer to process
             const rawEvent = buffer.slice(0, separatorIndex).trim();
             buffer = buffer.slice(separatorIndex + 2);
             separatorIndex = buffer.indexOf('\n\n');
@@ -168,21 +189,19 @@ export function ConversationStream({
         }
 
         if (buffer.trim().length) {
-          flushBuffer();
+          //flush any remaining data in the buffer that didn't end in double newlines
+          buffer
+            .split('\n')
+            .filter((line) => line.startsWith('data:'))
+            .forEach(processLine);
+          buffer = '';
         }
 
         if (!cancelled) {
-          updateStatus('finished');
+          updateStatus(ConversationStreamStatus.Finished);
         }
       } catch (streamError) {
-        if ((streamError as DOMException).name === 'AbortError') {
-          return;
-        }
-        const errorMessage = (streamError as Error).message;
-        updateStatus('error');
-        setError(errorMessage);
-        dispatchStreamEvent({ type: 'error', error: errorMessage });
-        console.error('SSE error', streamError);
+        handleStreamError(streamError);
       }
     };
 
@@ -199,10 +218,11 @@ export function ConversationStream({
   }
 
   const showLoadingMessage =
-    status === 'streaming' && !hasReceivedStreamContentRef.current && !error;
+    status === ConversationStreamStatus.Streaming && !hasReceivedStreamContentRef.current && !error;
 
   return (
     <>
+      {/* this panel is only displayed if debug is true */}
       {debug && (
         <div className="space-y-2">
           <p className="text-sm font-medium">Debug</p>

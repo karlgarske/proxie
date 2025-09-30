@@ -37,7 +37,6 @@ export function App() {
     (event: ConversationStreamEvent) => {
       if (event.type === 'status' && event.status === 'finished') {
         setThinking(false);
-        //requestAnimationFrame(() => promptInputRef.current?.focus());
       } else if (event.type == 'status' && event.status == 'connecting') {
         setThinking(true);
       }
@@ -50,18 +49,21 @@ export function App() {
   );
 
   useEffect(() => {
+    //uses hook to create a conversation via api
     createConversation(undefined, {
       onSuccess: (result) => setConversationId(result.conversationId),
     });
   }, [createConversation]);
 
   useEffect(() => {
+    //waits for initial conversation to be created in the background
     if (conversation?.conversationId) {
       setConversationId(conversation.conversationId);
     }
   }, [conversation]);
 
   useEffect(() => {
+    //delays display of controls to draw users eye
     const timeoutId = setTimeout(() => setControlsVisible(true), 1000);
     return () => clearTimeout(timeoutId);
   }, []);
@@ -99,8 +101,8 @@ export function App() {
   const bottom = submission ? 'bottom-8 md:bottom-32' : 'bottom-32 md:bottom-64';
 
   return (
-    <div className="relative px-8 md:px-16 lg:px-32 py-24 space-y-4">
-      <ul className="flex justify-end items-center text-sm absolute top-8 right-8 lg:right-32">
+    <div className="relative px-8 md:px-16 lg:px-32 py-32 space-y-4">
+      <ul className="flex justify-end items-center text-sm absolute top-16 right-8 lg:right-32">
         <li className="after:content-['|'] after:px-2 last:after:content-['']">
           <Link to="https://www.linkedin.com/in/karlgarske">LinkedIn</Link>
         </li>
