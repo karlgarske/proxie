@@ -15,6 +15,7 @@ import {
   SystemMessage,
 } from '@langchain/core/messages';
 import { z } from 'zod';
+import { env } from 'node:process';
 
 type Conversation = {
   conversationId: string;
@@ -159,6 +160,7 @@ export function registerRoutes(app: Express, service: HelloService) {
               responseId: result.responseId, //pointer
               //content: chunk.content,
               expires: expiration.toISOString(),
+              env: env.ENV || 'development',
               //updatedAt: new Date().toISOString(),
             },
             { merge: true }

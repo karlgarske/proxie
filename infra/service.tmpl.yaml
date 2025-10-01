@@ -45,6 +45,8 @@ spec:
         - name: api
           image: $API_IMG
           env:
+            - name: ENV
+              value: $ENV
             - name: project
               value: $PROJECT
             - name: PORT

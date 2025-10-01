@@ -33,6 +33,7 @@ if [[ ! -f "$ENV_FILE" ]]; then
 fi
 
 # Simple yaml parsing (expects simple key: value lines)
+export ENV=$(grep '^ENV:' "$ENV_FILE" | awk '{print $2}')
 export PROJECT=$(grep '^project:' "$ENV_FILE" | awk '{print $2}')
 export SERVICE=$(grep '^service:' "$ENV_FILE" | awk '{print $2}')
 export REGION=${REGION_OVERRIDE:-$(grep '^region:' "$ENV_FILE" | awk '{print $2}')}
