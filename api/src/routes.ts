@@ -2,10 +2,10 @@ import 'dotenv/config';
 import type { Express, Request, Response } from 'express';
 import { HelloRequestSchema } from './models/hello.js';
 import { HelloService } from './service/HelloService.js';
+import { ConversationService } from './service/ConversationService.js';
+//import { CONVERSATION_TTL_MS } from './models/conversation.js';
 import { ChatOpenAI } from '@langchain/openai';
 import { Firestore } from '@google-cloud/firestore';
-import { lru } from 'tiny-lru';
-import { v4 as uuidv4 } from 'uuid';
 import { readFileSync } from 'node:fs';
 
 import {
@@ -16,14 +16,6 @@ import {
 } from '@langchain/core/messages';
 import { z } from 'zod';
 import { env } from 'node:process';
-
-type Conversation = {
-  conversationId: string;
-  lastResponseId?: string;
-};
-
-const DURATION = 1000 * 60 * 5; //duration of conversation (5 min after last update)
-const conversations = lru<Conversation>(100, DURATION);
 
 console.warn(`Using firestore for project:${process.env.PROJECT}`);
 const firestore = new Firestore({ projectId: process.env.PROJECT });
@@ -38,20 +30,23 @@ const MessageSchema = z.object({
 const systemPrompt = readFileSync(new URL('../prompts/systemMessage.md', import.meta.url), 'utf-8');
 const systemMessage = new SystemMessage(systemPrompt);
 
-export function registerRoutes(app: Express, service: HelloService) {
+export function registerRoutes(
+  app: Express,
+  helloService: HelloService,
+  conversationService: ConversationService
+) {
   app.get('/api/hello', (req: Request, res: Response) => {
     const parsed = HelloRequestSchema.safeParse({ name: req.query.name });
     if (!parsed.success) {
       return res.status(400).json({ error: parsed.error.flatten() });
     }
-    const result = service.hello(parsed.data.name);
+    const result = helloService.hello(parsed.data.name);
     return res.json(result);
   });
 
   app.post('/api/conversations', async (req, res) => {
     console.log('posting conversation');
-    const conversation = { conversationId: uuidv4() };
-    conversations.set(conversation.conversationId, conversation);
+    const conversation = conversationService.createConversation();
     res.status(200).json(conversation);
   });
 
@@ -63,7 +58,7 @@ export function registerRoutes(app: Express, service: HelloService) {
     }
 
     const { conversationId, responseId } = message.data;
-    let conversation = conversations.get(conversationId);
+    let conversation = conversationService.getConversation(conversationId);
     if (!conversation) {
       //cache missed, so try loading conversation from firestore
       const doc = await conversationsCollection.doc(conversationId).get();
@@ -75,7 +70,7 @@ export function registerRoutes(app: Express, service: HelloService) {
         const expiration = new Date(data?.expiration).getTime();
         if (now > expiration) return res.status(404).json({ error: 'Conversation has expired.' });
         conversation = { conversationId: doc.id, lastResponseId: data?.responseId };
-        conversations.set(conversationId, conversation);
+        conversationService.cacheConversation(conversation);
       }
     }
 
@@ -144,7 +139,7 @@ export function registerRoutes(app: Express, service: HelloService) {
       } else if (event.event == 'on_chat_model_end') {
         const chunk = event.data.output as AIMessageChunk;
         const newResponseId = chunk.response_metadata.id;
-        const expiration = new Date(Date.now() + DURATION);
+        const expiration = new Date(Date.now() + 1000 * 60 * 5); //todo: use cache expire method
 
         const result = {
           conversationId: conversationId,
@@ -186,7 +181,7 @@ export function registerRoutes(app: Express, service: HelloService) {
           console.error('failed to update Firestore conversation', error);
         }
 
-        conversations.set(conversationId, { conversationId, lastResponseId: newResponseId });
+        conversationService.cacheConversation({ conversationId, lastResponseId: newResponseId });
 
         res.write(`data: ${JSON.stringify({ event: 'ended', result })}\n\n`);
       } else {

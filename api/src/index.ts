@@ -3,12 +3,29 @@ import express from 'express';
 import type { Server } from 'http';
 import { registerRoutes } from './routes.js';
 import { createHelloServiceFromEnv } from './service/HelloService.js';
+import { ConversationService } from './service/ConversationService.js';
+import type { Conversation } from './models/conversation.js';
+import { lru } from 'tiny-lru';
+import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
 app.use(express.json());
 
-const service = createHelloServiceFromEnv();
-registerRoutes(app, service);
+const helloService = createHelloServiceFromEnv();
+
+// builds conversation service with dependencies injected as config
+
+const CONVERSATION_TTL_MS = 1000 * 60 * 5; // 5 minutes
+const conversationCache = lru<Conversation>(100, CONVERSATION_TTL_MS);
+const conversationService = new ConversationService({
+  idGenerator: uuidv4,
+  cache: {
+    get: (conversationId) => conversationCache.get(conversationId),
+    set: (conversationId, conversation) => conversationCache.set(conversationId, conversation),
+  },
+});
+
+registerRoutes(app, helloService, conversationService);
 
 const PORT = 3001; // fixed in current config
 
