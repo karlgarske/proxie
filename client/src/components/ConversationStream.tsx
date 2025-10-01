@@ -82,7 +82,7 @@ export function ConversationStream({
       if (cancelled) return;
       try {
         const parsed = JSON.parse(payload);
-        console.log('SSE event', parsed);
+        //console.log('SSE event', parsed);
         if (parsed?.event === 'data' && typeof parsed.text === 'string') {
           hasReceivedStreamContentRef.current = true;
           setTranscript((prev) => prev + parsed.text);
@@ -122,6 +122,7 @@ export function ConversationStream({
     };
 
     const fetchResponse = async () => {
+      //using fetch instead of EventSource to be able to send cookies and use POST
       return await fetch(`${API_BASE}/api/response/sse`, {
         method: 'POST',
         credentials: 'include',
@@ -135,7 +136,9 @@ export function ConversationStream({
       });
     };
 
-    const validateResponse = (response: Response) => {
+    const fetchResponseReader = async () => {
+      const response = await fetchResponse();
+
       if (!response.ok) {
         console.error(`Status:${response.status} - ${response.body}`);
         let message = `Oops! Something went wrong :( Try refreshing.`;
@@ -147,6 +150,8 @@ export function ConversationStream({
       if (!response.body) {
         throw new Error('Yikes! I had trouble responding :(');
       }
+
+      return response.body.getReader();
     };
 
     const stream = async () => {
@@ -154,10 +159,7 @@ export function ConversationStream({
       setError(null);
 
       try {
-        const response = await fetchResponse();
-        validateResponse(response);
-
-        const reader = response.body!.getReader();
+        const reader = await fetchResponseReader();
         const decoder = new TextDecoder();
         let buffer = '';
 
