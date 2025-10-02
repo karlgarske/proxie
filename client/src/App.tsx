@@ -113,14 +113,14 @@ export function App() {
       <div className="font-semibold">Ask Me Anything</div>
       <form
         onSubmit={handleSubmitPrompt}
-        className={`fixed ${bottom} left-8 right-8 md:left-auto md:p-2 rounded-md flex flex-nowrap gap-2 md:w-2/3 lg:right-32 lg:w-1/3 items-stretch transition-all duration-400 ease-out ${controlsVisible ? `opacity-100 translate-y-0 ${submission ? '' : 'bg-yellow-200'}` : 'opacity-0 translate-y-64'}`}
+        className={`fixed ${bottom} left-8 right-8 md:left-auto md:p-2 rounded-md flex flex-nowrap gap-2 md:w-2/3 lg:right-32 lg:w-1/3 items-stretch transition-all duration-400 ease-out ${controlsVisible ? `opacity-100 translate-y-0 ${submission ? '' : ''}` : 'opacity-0 translate-y-64'}`}
       >
         <input
           ref={promptInputRef}
           type="text"
           value={prompt}
           onChange={(event) => setPrompt(event.target.value)}
-          className="flex-1 min-w-0 md:min-w-[300px] rounded border-2 border-primary px-3 py-2 text-3xl focus:outline-none focus:border-black focus:ring-2 focus:ring-black text-primary-foreground"
+          className="flex-1 min-w-0 md:min-w-[300px] rounded border-4 border-primary px-3 py-2 text-3xl focus:outline-none focus:border-primary focus:ring-4 bg-transparent"
           placeholder="Ask me anything"
           inputMode="text"
           enterKeyHint="send"
@@ -128,7 +128,7 @@ export function App() {
         <Button
           type="submit"
           disabled={!prompt.trim().length || isCreatingConversation}
-          className="text-3xl h-full px-6 hidden md:block"
+          className="text-3xl h-auto px-6 hidden md:block"
         >
           Ask
         </Button>
@@ -143,8 +143,8 @@ export function App() {
 
         {submission && (
           <div className="flex gap-2 justify-start items-center w-fit bg-yellow-200 rounded-full p-4 mt-12 mb-6">
-            <CircleQuestionMarkIcon strokeWidth="2.5" className="text-primary-foreground" />
-            <div className="text-xl text-primary-foreground">{submission?.text}</div>
+            <CircleQuestionMarkIcon strokeWidth="2.5" className="text-yellow-800" />
+            <div className="text-xl text-yellow-800">{submission?.text}</div>
           </div>
         )}
         <div className="flex justify-start mb-[400px]">
