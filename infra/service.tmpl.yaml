@@ -47,7 +47,7 @@ spec:
           env:
             - name: ENV
               value: $ENV
-            - name: project
+            - name: PROJECT
               value: $PROJECT
             - name: PORT
               value: '3001'

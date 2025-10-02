@@ -31,9 +31,9 @@ fi
 
 # Simple yaml parsing (expects simple key: value lines)
 export ENV=$(grep '^ENV:' "$ENV_FILE" | awk '{print $2}')
-export PROJECT=$(grep '^project:' "$ENV_FILE" | awk '{print $2}')
-export SERVICE=$(grep '^service:' "$ENV_FILE" | awk '{print $2}')
-export REGION=${REGION_OVERRIDE:-$(grep '^region:' "$ENV_FILE" | awk '{print $2}')}
+export PROJECT=$(grep '^PROJECT:' "$ENV_FILE" | awk '{print $2}')
+export SERVICE=$(grep '^SERVICE:' "$ENV_FILE" | awk '{print $2}')
+export REGION=${REGION_OVERRIDE:-$(grep '^REGION:' "$ENV_FILE" | awk '{print $2}')}
 export OPENAI_API_KEY=$(grep '^OPENAI_API_KEY:' "$ENV_FILE" | awk '{print $2}')
 export VECTOR_STORE=$(grep '^VECTOR_STORE:' "$ENV_FILE" | awk '{print $2}')
 
