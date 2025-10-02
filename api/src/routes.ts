@@ -39,7 +39,7 @@ export function registerRoutes(
     }
 
     try {
-      res.writeHead(200, {
+      res.set({
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache, no-transform',
         Connection: 'keep-alive',
@@ -53,18 +53,16 @@ export function registerRoutes(
       });
 
       for await (const event of stream) {
+        res.flushHeaders();
         res.write(`data: ${JSON.stringify(event)}\n\n`);
-        if (event.event === 'data') {
-          res.flushHeaders();
-        }
       }
+
+      res.status(200).end();
     } catch (error: any) {
       const message = error.message ?? error;
       console.error('Conversation response stream error:', message);
-      const event = JSON.stringify({ event: 'error', message: message });
-      res.status(500).write(`data: ${event}\n\n`);
+      const event = { event: 'error', message: message };
+      return res.status(500).json(event);
     }
-
-    res.end();
   });
 }
