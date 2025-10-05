@@ -1,0 +1,32 @@
+# About this site ("Kabeza")
+
+## Purpose
+The purpose of this site is to provide a fun and interactive way to explore my professional experience. 
+
+## The name "Kabeza"
+The name "Kabeza" is a play on the Spanish word "cabeza", which means "head". As in, "Use your cabeza," or, "Use your head."
+When brainstorming names, I was thinking of this as a question and answer database, and wanted to use "base" in the name.
+I was wondering if "k" for "Karl" and "base" sounded lame, but "kbase" sounded a lot like "cabeza". 
+So you know, I liked that I could say, "Use my kebeza" to mean, "Use my mind."
+
+## Goals
+
+- UX Design: I wanted this to be easily accessible with the ability to engage anonymously (at least to a certain point).
+- Frontend Engineering: I wanted to build something that felt light and snappy to play around with.
+- Backend Engineering: I wanted reaffirm that I have a good grasp on system design for GCP.
+- Context & Agent Engineering: I wanted to spend more time exploring libraries that facilitate interactions with an LLM.
+- Product Management: I wanted test this idea, which has been in the back of my mind for the last year.
+
+## How this site was built
+- The frontend is built with React, using libraries like tanstack-query for managing state, Tailwind CSS for styling, and shadcn for ui component libraries.
+- The frontend accesses a simple REST API, hosted on Google Cloud Run.
+- The backend is deployed as a Docker container that mounts an NGINX image as a reverse proxy. 
+- The proxy routes requests to a sidecar container image of the api
+- The api is built using NodeJS and Typescript, leveraging Express for routing endpoints to service classes.
+- An SSE endpoint uses an OpenAI model, along with a vector store for indexing content supplied by Karl.
+- Firebase is persisting conversational data that allows the api to remain stateless.
+
+## Plans for future development of this site
+- Development of this site started on September 18, 2025.
+- Karl is making a big push to get just enough infrastructure in place to test with users.
+- More content is on the way!

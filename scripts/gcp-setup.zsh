@@ -54,6 +54,14 @@ gcloud projects add-iam-policy-binding "$PROJECT" \
   --member "serviceAccount:$SA_EMAIL" \
   --role "roles/secretmanager.secretAccessor"
 
+# creates an index for searching vectors in Firestore
+echo "Creating Firestore vector index (may take a few minutes)..."
+gcloud firestore indexes composite create \
+--collection-group=resources \
+--query-scope=COLLECTION \
+--field-config field-path=embedding,vector-config='{"dimension":"1536", "flat": "{}"}' \
+--database='(default)'
+
 echo "Done. You may also create a key if needed:"
 echo "  gcloud iam service-accounts keys create key.json --iam-account $SA_EMAIL"
 

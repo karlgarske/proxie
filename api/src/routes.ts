@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { HelloRequestSchema } from './models/hello.js';
 import { HelloService } from './service/HelloService.js';
 import { ConversationError, ConversationService } from './service/ConversationService.js';
+import { ClassifyService } from './service/ClassifyService.js';
 
 const MessageSchema = z.object({
   conversationId: z.string().nonempty('conversationId is required'),
@@ -14,7 +15,8 @@ const MessageSchema = z.object({
 export function registerRoutes(
   app: Express,
   helloService: HelloService,
-  conversationService: ConversationService
+  conversationService: ConversationService,
+  classifyService: ClassifyService
 ) {
   app.get('/api/hello', (req: Request, res: Response) => {
     const parsed = HelloRequestSchema.safeParse({ name: req.query.name });
@@ -23,6 +25,13 @@ export function registerRoutes(
     }
     const result = helloService.hello(parsed.data.name);
     return res.json(result);
+  });
+
+  app.get('/api/classify', async (req: Request, res: Response) => {
+    const { text } = req.query;
+    const classification = await classifyService.getClassificationByVector(text as string);
+    console.debug('classification result:', classification);
+    return res.json(classification);
   });
 
   app.post('/api/conversations', async (_req, res) => {

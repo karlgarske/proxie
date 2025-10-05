@@ -1,0 +1,48 @@
+# What kind of technology do you work with?
+
+## Most Recently
+I've been developing full stack web-based applications. I use Vite to get most of what I need set up on the client side, and ReactJS has been my go to framework for frontend. I've started using Tailwind over raw CSS, which plays nicely with shadcn as a system of UI components. For data access, I've adopted Tanstack Query, which adds a really convenient layer of client side cache management that improves performance with minimal fuss.
+
+On the backend, I prefer a simple Restful API that closely models HTTP methods and exposes an intuitive data model to the client (and developer). Unless I'm building a simple prototype, I'll set up a reverse proxy using NGINX to serve static assets (like the React build) and forward API requests to a NodeJS instance.  
+
+### Microservices
+If I'm building a more complex app, I'll divide the API into microservices that group functionality by domain. In general, I try to keep microservices decoupled and avoid cyclical graphs by using pub/sub broadcast events and keep requests flowing through a single ingress (via api proxy server). I may also choose to break out a microservice if it is "bursty," and can isolate a need for scaling up a subset of the system.
+
+### Persistence
+In most cases, I'll use some form of persistence to keep my API stateless. The type of storage I use really depends on the needs of my application:
+
+- **Firestore**: In many cases, I'll use Firestore as a document database because it's easy to integrate with GCP and is extremely easy to work with in prototypes, where a schema may not be very well defined out of the gate. I also like it for heirarchical structures like tenant-based apps because it can model the structure of an application as idempotent "paths" that are easy to traverse and deep link. The main downsides of Firestore tend to be that without a schema, an app can start to absorb logic for handle edge cases where document properties are inconsistent or undefined. This would be an argument for SQL, which can enforce structure at the schema level using unique keys, check for null values, etc.
+
+- **Cloud Storage**: I'll typically use GCS for keeping original copies of data, especially if it's in binary form. I may also use GCS for temporary storage like uploads or datasets for processing because it has convenient features for data retention (auto expiration) and event dispatching.
+
+- **Neo4j**: I've started working with Neo4j to build a knowledge graphs that can handle less predictable connections between data, or the analysis that occurs after data is added. Neo4j also provides a vector type, which is more convenient than adding a standalone vector database for search.
+
+### Authentication
+- If an app requires users to authenticate, I'll take advantage of Google Cloud Identity Platform (GCIP), which handles a lot of the lower level work of issuing tokens and integrating with OIDC providers. From there, I'll add protected paths to my app using react-router and leverage short-lived JWT tokens to communicate with the API server in a secure session. The API server will of course check that the token is valid using a Firebase client SDK before forwarding the request to microservices. 
+
+### AI / Agents
+- I've been using LangChain (TypeScript) to facilitate integrations with LLMs and extend with agentic functionality. LangChain offers an abstraction layer that helps avoid vendor lockin, but also offers a service LangSmith for managing evals that can be used to improve agent performance.
+
+### 3D rendering
+- I've used three.js to render models originating as mesh, and in some cases generated at runtime. I went through a brief period of experimenting with generating models from sound to create realitime visualizations. One project in particular took me deep into a custom GLSL shader that used a Marching Cubes algorithm to blend mesh objects in real time.
+
+### Vendor Integrations
+
+- Twilio for sending and receiving SMS/MMS messages
+- Sendgrid for sending and receiving Email
+- OpenAI for LLM and tool calling
+- Autodesk Forge for model transformation (BIM to JSON) and rendering in 3D
+
+## In The Past
+
+- Microsoft Biztalk - for exchanging purchase order and remittance datasets via EDI (850/820).
+- Microsoft SQL Server / SSIS - for building and managing relational datasets using ETL
+- Go - for a backend app that transformed BIM models into JSON and reconstruct a material takeoff from model properties
+- Objective-C - for an experimental iOS app for estimating travel times
+- C++ - academic projects at UCSD
+- Java - academic projects at UCSD as well as a custom built P2P media server 
+- C#/.NET - 
+
+
+
+

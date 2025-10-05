@@ -8,6 +8,7 @@
     "api",
     "proxy"
   ],
+  "type": "module",
   "scripts": {
     "dev": "npm-run-all -p dev:api dev:client",
     "dev:client": "npm --workspace client run dev",

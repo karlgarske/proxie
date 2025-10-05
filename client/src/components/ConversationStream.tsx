@@ -247,7 +247,7 @@ export function ConversationStream({
         </div>
       )}
 
-      {showLoadingMessage && <p className="text-sm text-muted-foreground">Thinking…</p>}
+      {showLoadingMessage && <p className="text-base">Thinking…</p>}
       <div className="markdown-container">
         {error && <p className="text-red-600">{error}</p>}
         <ReactMarkdown remarkPlugins={[remarkGfm]} children={transcript} />

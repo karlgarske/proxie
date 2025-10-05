@@ -1,0 +1,13 @@
+# My current focus
+- Currently, I'm working with AI-first startups.
+- I'm using my experience with ux design, software engineering, and product management to bring early concepts to life.
+
+## Streamlining The Construction Change Order Process
+One company in particular is using AI to help construction project managers react to changes that come from 
+customers, the field, pricing / supply chain, etc.
+## Problem
+- Construction Project Managers for commercial developments are at the center of a large and decentralized team where the volume of details and communication is abundant
+- A PM will often prioritize and accept risk to navigate unplanned changes with limited experience and time
+## Hypothesis
+- User: AI is able to help the PM expedite the process of understanding the liability, scope, and impact of changes occurring all throughout the project
+- Business: Responding effectively to changes can save millions on construction costs that were unnecessary

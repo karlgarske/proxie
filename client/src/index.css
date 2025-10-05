@@ -69,7 +69,7 @@
 
 @layer components {
   .markdown-container {
-    @apply bg-inherit text-muted-foreground text-2xl;
+    @apply bg-inherit text-2xl font-medium;
   }
 
   .markdown-container :is(ul, ol) {
