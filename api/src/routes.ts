@@ -1,10 +1,8 @@
 import 'dotenv/config';
 import type { Express, Request, Response } from 'express';
 import { z } from 'zod';
-import { HelloRequestSchema } from './models/hello.js';
-import { HelloService } from './service/HelloService.js';
-import { ConversationError, ConversationService } from './service/ConversationService.js';
-import { ClassifyService } from './service/ClassifyService.js';
+import { IConversationService } from './service/ConversationService.js';
+import { IClassifyService } from './service/ClassifyService.js';
 
 const MessageSchema = z.object({
   conversationId: z.string().nonempty('conversationId is required'),
@@ -14,23 +12,17 @@ const MessageSchema = z.object({
 
 export function registerRoutes(
   app: Express,
-  helloService: HelloService,
-  conversationService: ConversationService,
-  classifyService: ClassifyService
+  conversationService: IConversationService,
+  classifyService: IClassifyService
 ) {
   app.get('/api/hello', (req: Request, res: Response) => {
-    const parsed = HelloRequestSchema.safeParse({ name: req.query.name });
-    if (!parsed.success) {
-      return res.status(400).json({ error: parsed.error.flatten() });
-    }
-    const result = helloService.hello(parsed.data.name);
-    return res.json(result);
+    return res.status(200).send('hi!');
   });
 
   app.get('/api/classify', async (req: Request, res: Response) => {
     const { text } = req.query;
     const classification = await classifyService.getClassificationByVector(text as string);
-    console.debug('classification result:', classification);
+    //console.debug('classification result:', classification);
     return res.json(classification);
   });
 

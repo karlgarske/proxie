@@ -43,11 +43,6 @@
       "description": "I studied Mathematics and Computer Science.",
       "backdrops": [
         {
-          "url": "/assets/media/rainfall.gif",
-          "description": "I created this rainfall animation using a blend of math and programming. The drops mathematically blend vertices of independent spheres using a 'Marching Cubes' algorithm. A custom shader applies refraction and lighting to bring the geometry to life.",
-          "attribution": "Karl Garske"
-        },
-        {
           "url": "/assets/media/refraction.gif",
           "description": "I've used my background in math/cs to explore the concept of drawing with sound. The idea here was to manipulate droplets based on audio input. It uses a 'Fast Fourier Transform' to map audio frequencies onto visual properties like motion, vibration, and expansion.",
           "attribution": "Karl Garske"

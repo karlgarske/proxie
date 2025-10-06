@@ -7,7 +7,11 @@ import {
   MessageContentText,
   SystemMessage,
 } from '@langchain/core/messages';
-import type { Conversation } from '../models/conversation.js';
+
+export type Conversation = {
+  conversationId: string;
+  lastResponseId?: string;
+};
 
 export type ConversationCache = {
   get: (conversationId: string) => Conversation | undefined;
@@ -53,7 +57,59 @@ export class ConversationError extends Error {
   }
 }
 
-export class ConversationService {
+export interface IConversationService {
+  createConversation(): Conversation;
+  streamResponse(
+    input: ConversationResponseInput
+  ): AsyncGenerator<ConversationStreamEvent, void, void>;
+}
+
+// Creates IConversationService based on environment
+export function conversationServiceFactory(
+  config: ConversationServiceConfig
+): IConversationService {
+  if (config.env === 'test') {
+    console.warn('Using MockConversationService in test environment');
+    return new MockConversationService();
+  }
+  return new ConversationService(config);
+}
+
+// Mock service for testing and development
+export class MockConversationService implements IConversationService {
+  createConversation(): Conversation {
+    return { conversationId: 'mock-conversation' };
+  }
+
+  async *streamResponse(): AsyncGenerator<ConversationStreamEvent, void, void> {
+    const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    yield { event: 'started' };
+    await pause(500);
+
+    const chunks =
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'.split(
+        ' '
+      );
+    for (const chunk of chunks) {
+      yield { event: 'data', text: chunk + ' ' };
+      await pause(50);
+    }
+
+    yield {
+      event: 'ended',
+      result: {
+        conversationId: 'mock-conversation',
+        responseId: 'mock-response',
+        content: [{ type: 'text', text: 'This is a mock response.' }],
+        expires: new Date(Date.now() + 3600 * 1000),
+      },
+    };
+  }
+}
+
+// Functional implementation of IConversationService
+export class ConversationService implements IConversationService {
   private readonly conversationsCollection = this.config.firestore.collection('conversations');
 
   constructor(private readonly config: ConversationServiceConfig) {}

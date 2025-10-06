@@ -6,17 +6,17 @@ import { Firestore } from '@google-cloud/firestore';
 import { ChatOpenAI } from '@langchain/openai';
 import { SystemMessage } from '@langchain/core/messages';
 import { registerRoutes } from './routes.js';
-import { createHelloServiceFromEnv } from './service/HelloService.js';
-import { ConversationService } from './service/ConversationService.js';
-import { ClassifyService } from './service/ClassifyService.js';
-import type { Conversation } from './models/conversation.js';
+import { conversationServiceFactory, Conversation } from './service/ConversationService.js';
+import { classifyFactory } from './service/ClassifyService.js';
 import { lru } from 'tiny-lru';
 import { v4 as uuidv4 } from 'uuid';
+import { OpenAIEmbeddings } from '@langchain/openai';
 
 const app = express();
 app.use(express.json());
 
-const helloService = createHelloServiceFromEnv();
+const environment = process.env.ENV ?? 'development';
+console.warn(`Starting API in ${environment} environment`);
 
 const openAIApiKey = process.env.OPENAI_API_KEY;
 if (!openAIApiKey) throw new Error('OPENAI_API_KEY is not set');
@@ -35,17 +35,15 @@ const systemMessage = new SystemMessage(systemPrompt);
 
 const model = new ChatOpenAI({
   model: 'gpt-4o-mini',
-  temperature: 0,
+  temperature: 0.2,
   useResponsesApi: true,
   apiKey: openAIApiKey,
 });
 
-const environment = process.env.ENV || 'development';
-
 // builds conversation service with dependencies injected as config
 const CONVERSATION_TTL_MS = 1000 * 60 * 5; // 5 minutes
 const conversationCache = lru<Conversation>(100, CONVERSATION_TTL_MS);
-const conversationService = new ConversationService({
+const conversationService = conversationServiceFactory({
   idGenerator: uuidv4,
   cache: {
     get: (conversationId) => conversationCache.get(conversationId),
@@ -59,19 +57,14 @@ const conversationService = new ConversationService({
   vectorStoreId,
 });
 
-const classifyPrompt = readFileSync(
-  new URL('../prompts/classify/systemMessage.md', import.meta.url),
-  'utf-8'
-);
-const classifyMessage = new SystemMessage(systemPrompt);
-const visualizationService = new ClassifyService({
-  model,
+const embeddings = new OpenAIEmbeddings({ model: 'text-embedding-3-small', dimensions: 1536 });
+const classifyService = classifyFactory({
+  embeddings,
   firestore,
   env: environment,
-  systemMessage,
 });
 
-registerRoutes(app, helloService, conversationService, visualizationService);
+registerRoutes(app, conversationService, classifyService);
 
 const PORT = 3001; // fixed in current nginx config
 

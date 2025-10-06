@@ -38,6 +38,8 @@ export function App() {
   const [bg, setBg] = useState('');
   const [description, setDescription] = useState('');
   const [attribution, setAttribution] = useState('');
+  const [bgOpacity, setBgOpacity] = useState(0);
+  const [bgInfo, setBgInfo] = useState(false);
 
   const handleConversationStreamEvent = useCallback(
     (event: ConversationStreamEvent) => {
@@ -53,6 +55,10 @@ export function App() {
     },
     [promptInputRef]
   );
+
+  useEffect(() => {
+    if (!thinking) promptInputRef.current?.focus();
+  }, [thinking]);
 
   useEffect(() => {
     //uses hook to create a conversation via api
@@ -79,6 +85,16 @@ export function App() {
   }, [controlsVisible]);
 
   useEffect(() => {
+    if (bgInfo) {
+      setBgOpacity(1);
+      setControlsVisible(false);
+    } else {
+      setBgOpacity(0.45);
+      setControlsVisible(true);
+    }
+  }, [bgInfo]);
+
+  useEffect(() => {
     if (classification && classification.score > 0.25) {
       console.log('classification:', classification);
 
@@ -89,6 +105,7 @@ export function App() {
         const backdrop = item?.url ?? '';
         //console.log('selected backdrop:', backdrop);
         setBg(`${backdrop}?t=${Date.now()}`); //cache buster
+        setBgOpacity(0.7);
         setDescription(item?.description ?? '');
         setAttribution(item?.attribution ?? '');
       }
@@ -97,6 +114,7 @@ export function App() {
       setBg('');
       setDescription('');
       setAttribution('');
+      setBgOpacity(0);
     }
   }, [classification]);
 
@@ -108,6 +126,7 @@ export function App() {
     if (!promptText.length) return;
 
     setPrompt('');
+    setBgOpacity(0);
     requestAnimationFrame(() => promptInputRef.current?.focus());
 
     const submissionPayload: PromptSubmission = { id: Date.now(), text: promptText };
@@ -138,7 +157,7 @@ export function App() {
           position: 'fixed',
           inset: '0',
           zIndex: '-10',
-          opacity: '0.45',
+          opacity: bgOpacity,
         }} // shows through during fades/empty
       >
         {''}
@@ -153,7 +172,9 @@ export function App() {
             <Link to="https://github.com/karlgarske">GitHub</Link>
           </li>
         </ul>
-        <div className="font-semibold">Ask Karl Anything</div>
+        <div className={`font-semibold ${controlsVisible ? 'opacity-100' : 'opacity-0'}`}>
+          Ask Karl Anything
+        </div>
         <form
           onSubmit={handleSubmitPrompt}
           className={`fixed ${bottom} left-8 right-8 md:left-auto md:p-2 rounded-md flex flex-nowrap gap-2 md:w-2/3 lg:right-32 lg:w-1/3 items-stretch transition-all duration-400 ease-out ${controlsVisible ? `opacity-100 translate-y-0 ${submission ? '' : ''}` : 'opacity-0 translate-y-64'}`}
@@ -167,6 +188,7 @@ export function App() {
             placeholder="Ask about Karl..."
             inputMode="text"
             enterKeyHint="send"
+            disabled={thinking || isCreatingConversation}
           />
           <Button
             type="submit"
@@ -176,10 +198,31 @@ export function App() {
             Ask
           </Button>
         </form>
-        {conversationError && (
-          <p className="text-sm text-red-600">Error: {(conversationError as Error).message}</p>
+        {!isClassifying && description != '' && (
+          <div className="fixed right-32 bottom-64 text-muted-foreground cursor-pointer">
+            <HoverCard
+              openDelay={100}
+              closeDelay={100}
+              onOpenChange={(open: boolean) => {
+                open ? setBgInfo(true) : setBgInfo(false);
+              }}
+            >
+              <HoverCardTrigger className="flex items-center gap-2 text-primary font-semibold text-xl pr-8 w-fit">
+                <InfoIcon />
+                About the background
+              </HoverCardTrigger>
+              <HoverCardContent
+                side="top"
+                sideOffset={32}
+                className="bg-transparent text-2xl w-[400px]"
+              >
+                {description}
+              </HoverCardContent>
+            </HoverCard>
+          </div>
         )}
-        <div id="chat" className="max-w-[680px]">
+
+        <div id="chat" className={`max-w-[680px] ${controlsVisible ? 'opacity-100' : 'opacity-0'}`}>
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
             {!submission &&
               "Greetings! I'm Karl, and I made this site so we can get to know each other better."}
@@ -194,17 +237,8 @@ export function App() {
               debug={false}
               onEvent={handleConversationStreamEvent}
             />
-
-            {!isClassifying && description != '' && (
-              <div className="fixed right-32 bottom-64 w-[260px] text-muted-foreground cursor-pointer">
-                <HoverCard openDelay={100}>
-                  <HoverCardTrigger className="flex items-center gap-2 text-primary font-semibold">
-                    <InfoIcon />
-                    About the background
-                  </HoverCardTrigger>
-                  <HoverCardContent side="top">{description}</HoverCardContent>
-                </HoverCard>
-              </div>
+            {conversationError && (
+              <p className="text-sm text-red-600">Error: {(conversationError as Error).message}</p>
             )}
           </div>
         </div>

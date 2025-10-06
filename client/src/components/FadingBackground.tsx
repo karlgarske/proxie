@@ -30,6 +30,7 @@ export function FadingBackground({
 
   // Ref to prevent overlapping transitions from stepping on each other.
   const isTransitioningRef = useRef(false);
+  const pendingUrlRef = useRef<string | null>(null);
 
   // Initialize on mount with initial prop
   useEffect(() => {
@@ -39,11 +40,22 @@ export function FadingBackground({
 
   // When imageUrl changes, push it into the hidden layer, then flip visibility to crossfade.
   useEffect(() => {
+    const nextUrl = imageUrl || '';
     const currentUrl = showA ? urlA : urlB;
-    if (imageUrl === currentUrl || isTransitioningRef.current) return;
 
+    if (nextUrl === currentUrl) {
+      pendingUrlRef.current = null;
+      return;
+    }
+
+    if (isTransitioningRef.current) {
+      pendingUrlRef.current = nextUrl;
+      return;
+    }
+
+    pendingUrlRef.current = null;
     const setHiddenUrl = showA ? setUrlB : setUrlA;
-    setHiddenUrl(imageUrl || '');
+    setHiddenUrl(nextUrl);
 
     // Ensure the browser paints the hidden layer with opacity 0 before we flip to 1.
     isTransitioningRef.current = true;
@@ -60,6 +72,20 @@ export function FadingBackground({
     if (!isTransitioningRef.current) return;
     isTransitioningRef.current = false;
     onFadeEnd?.();
+
+    const nextUrl = pendingUrlRef.current;
+    if (nextUrl == null) return;
+
+    pendingUrlRef.current = null;
+    const setHiddenUrl = showA ? setUrlB : setUrlA;
+    setHiddenUrl(nextUrl);
+
+    isTransitioningRef.current = true;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setShowA((prev) => !prev);
+      });
+    });
   };
 
   const layerCommon: React.CSSProperties = {
