@@ -2,8 +2,8 @@
 I earned my B.A degree in Mathematics-Computer Science from the University of California, San Diego (UCSD).
 
 The program included a blend of theoretical and applied mathematics, including caculus, multivariable calculus, 
-discrete mathematics, combinatorics, cryptography, probability, approximation theory, linear algegra, proofs, and more.
+discrete mathematics, combinatorics, cryptography, probability, approximation, linear algegra, proofs, and more.
 
-My programming courses emphasized the fundamentals in computer science -- assembly languages, object oriented programming, algorithms, computability, etc. I gravitated toward the applied sciences, as employment was booming at the time. In fact, I attribute much of my success with software engineering to what I learned in the process of translating the theory to my work as a startup founder, which I was doing as a full time student.
+My programming curriculum emphasized the fundamentals of computer science like assembly languages, memory management, object oriented programming, algorithms, data structures, computability, and more. I gravitated toward the applied sciences, as employment was booming at the time. In fact, I attribute much of my success with software engineering to what I learned in the process of translating the theory to my work as a startup founder, which I was doing as a full time student.
 
 I had not anticipated that AI and "crypto" would make the combination of mathematics and computer science so powerful. While I am not actively developing blockchains or ML algorithms, I find the concepts much easier to digest given my foundational understanding of the theoretical aspects.

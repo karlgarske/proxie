@@ -1,6 +1,7 @@
-# My current focus
-- Currently, I'm working with AI-first startups.
-- I'm using my experience with ux design, software engineering, and product management to bring early concepts to life.
+# Current Focus
+- I'm working with AI-first startups to build transformative user experiences for the built environment.
+- I'm using my experience with ux design, software engineering, and product management to bring concepts to life.
+- I'm enjoying the process of working hands-on with new tech to understand what's possible and test the limits firsthand.
 
 ## Streamlining The Construction Change Order Process
 One company in particular is using AI to help construction project managers react to changes that come from 

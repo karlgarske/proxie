@@ -2,14 +2,15 @@
   "resources": [
     {
       "id": "hometown",
-      "description": "I currently live in San Francisco.",
+      "description": "I currently live in San Francisco, near Dolores Heights.",
       "backdrops": [
         {
           "url": "/assets/media/sf.webp",
           "description": "I've been around the world, but I'm always happy to call San Francisco my home.",
           "attribution": "https://sarowly.me/blog/ultimate-locals-travel-guide-to-sanfrancisco"
         }
-      ]
+      ],
+      "pivots": ["Tell me about your hobbies", "What kind of work do you do?"]
     },
     {
       "id": "school",
@@ -25,7 +26,8 @@
           "description": "Nothing like a surf break in Cardiff to take the mind off of studying :)",
           "attribution": "https://unsplash.com/photos/two-surfers-walking-on-sand-going-on-water-X0rRYtJy0R8"
         }
-      ]
+      ],
+      "pivots": ["What have you done with your degree?", "Are you still building software?"]
     },
     {
       "id": "hobbies",
@@ -48,11 +50,7 @@
           "attribution": "Karl Garske"
         }
       ],
-      "pivots": [
-        "What technology have you built?",
-        "Do you use math in your work?",
-        "How did you learn about AI?"
-      ]
+      "pivots": ["What projects have you worked on?", "How did you learn about AI?"]
     },
     {
       "id": "outer-labs",
@@ -63,7 +61,8 @@
           "description": "When I was founding Outer Labs, I used colors and shapes to define our brand identity.",
           "attribution": "Outer Labs, Inc."
         }
-      ]
+      ],
+      "pivots": ["What did you learn from Outer Labs?", "What are you working on now?"]
     }
   ]
 }

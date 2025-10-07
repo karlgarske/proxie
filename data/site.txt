@@ -1,13 +1,10 @@
-# About this site ("Kabeza")
+# About this site ("Proxie")
 
 ## Purpose
 The purpose of this site is to provide a fun and interactive way to explore my professional experience. 
 
-## The name "Kabeza"
-The name "Kabeza" is a play on the Spanish word "cabeza", which means "head". As in, "Use your cabeza," or, "Use your head."
-When brainstorming names, I was thinking of this as a question and answer database, and wanted to use "base" in the name.
-I was wondering if "k" for "Karl" and "base" sounded lame, but "kbase" sounded a lot like "cabeza". 
-So you know, I liked that I could say, "Use my kebeza" to mean, "Use my mind."
+## The name "Proxie"
+"Proxie" was a cheaper way of spelling "Proxy" when it comes to registering domain names. The idea is that AI can serve as a proxy for my physical self, offering unlimited access to resources I'm providing as an individual. When you use my Proxie, you're speaking to an agent that knows me, represents me, amplifies me.
 
 ## Goals
 

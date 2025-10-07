@@ -12,7 +12,7 @@
 - Created design technology to accelerate the development and operation of real estate for workplaces.
 - 50+ employees across technology, product, and operations developing a range of products for design technology, estimation, a capacity planning
 
-## Head of Product / Flux.io
+## Head of Product / Flux.io (Acquired by Density)
 - Oct 2015 - Feb 2018
 - Recruited by the founding CEO to lead development of an SDK and extension app program for a platform focused on building design automation
 - Managed a team of 20 engineers across multiple timezones and 7 concurrent product development tracks

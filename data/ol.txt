@@ -1,0 +1,46 @@
+# Outer Labs, Inc.
+
+When I left Flux, I was sure I would remain focused on AEC (Architecture Engineering & Construction). I had seen firsthand that the industry was a complex ecosystem, and the opportunity for technology was still quite large. Many of the systems in place were built on Windows desktop technology, siloed and lacking true collaboration capabilities that are standard with modern web-based apps. It wasn't just a UX problem. It was becoming inhibiting for great designers and builders who are responsible for delivering spaces the rest of us can enjoy for generations to come. The mission was clear -- make it possible to scale the production of high-quality environments for humans to enjoy. 
+
+## Founding The Company
+Initially, we saw ourselves as a product company. The earliest concept was a pre-printed roll of QR code stickers that could be placed on objects, scanned, and loaded with content. Scanning the sticker would activate content that had been loaded by an administrator.
+
+The concept was really interesting, but it was less obvious who we would sell to, and how they would use it. We explored the idea for construction, and pitched the idea of binding "digital and physical" assets. For example, construction drawings are printed to paper, and our sticker could connect the drawings back to their digital asset even after they had been printed. Another idea was to put stickers on equipment, so documents could be attached for maintenance, operation, installation, etc.
+
+Before we could connect the dots, we caught a once in a lifetime break when a very large and influential technology company reached out about a "small" consulting gig. We decided to shelve the product to focus on generating revenue that we could use to remain independent and fund our own R&D.
+
+## Consulting Engagements
+### Our Big Break
+
+I can't share details, but our first consulting gig could support a team of 4. We were able to leverage our experience to build a prototype that would consume 3D models from different subcontractors (Architecture, MEP, structural engineering, etc.), transform the metadata into a bill of materials and parts, cross-reference historical cost data, and project an estimate to physically build the model. Our prototype was able to generate "material takeoffs" and generate an estimate to +/-10% accuracy in a matter of seconds compared to weeks when done by humans. Our stakeholders were blown away not only by the performance, but the simplicity of user experience that anyone could use.
+
+### Generating A Buzz
+
+Not long on the heels of our initial contract, we received a much larger and daunting multi-year contract that would allow us to scale up our consulting team. 
+
+In contrast with the first project, which was more relevant to the "design development" phase, this project would focus on an earlier phase referred to as "pre-construction" or "concept design". The thinking was that software could have the biggest impact by anticipating problems from the earliest stage of design. We would use years of experience captured in design guidelines to generate buildings that could meet our clients performance and cost constraints before a new building had even started the traditional design process. 
+
+Before generating design options, we would allow users to model a site using localized context like zoning and adjacencies. The site model would serve as context for a building envelope that would house its own model for programming, layout, systems (facade, MEP, modular FF&E), and circulation (horizontal and vertical). The building model would guarantee that the earliest concepts were not just conceptually interesting, but feasible. 
+
+The prototype was met with mixed reviews. Our client, the owner/operator of spaces being developed, was beyond excited to have a tool that would help them explore concepts without the conventional timeline/fees attached. They had far more control over when and how they would initiate engagements to explore a concept further.
+
+Unfortunately, our client struggled to build support among vendors who would need to take and apply the output in downstream work. This is a common problem for the industry, which is fueled by consulting fees and a low-tolerance for risk based on how contracts are written. The project was eventually cancelled due to the ongoing cost of ownership that was not demonstrating quantifiable ROI.
+
+### Branching Out
+
+Although concept design had become our main growth engine, we didn't stop there. We were also hired to upgrade a legacy system critical to portfolio planning on a global scale. The tool would look at scenarios for the company's growth projections and answer whether or not a portfolio plan could supply the amount of space that would be in demand from different business divisions spread across all areas of the world. This was of course integrating with many internal systems that were used across the orgnization to facilitate planning.
+
+The project was considered a topmost priority for our client, which came with visibility for leadership at the highest levels. There was a high degree of intensity at all times, with stakeholders under a lot of pressure to deliver. I like to think we supported them the best we could with our product development expertise, and produced  some incredible work during a critical time for the company.
+
+## Reflection
+
+My experience as CEO lasted for 6.5 very rewarding years. A lot of time and care went into crafting the team, culture, and identity. I felt closely connected to the work we produced, and often admired the high caliber of people we were able to recruit.
+
+I'm not sure I could do it again. The role of CEO is always on, with sleepless nights and constant setbacks. An optimist, which I am not by nature, may be better at deflecting. Like anything else, one can develop the skills that are needed to survive. In my heart, I want to bring energy and wonder to the world, which was not always the role. I found far more pleasure in creating, and attracting like minds. For that I consider myself lucky to have played a part in the very successful building of a company and offering a place for peope to exchange ideas -- if only for a short window in time.
+
+### Observations
+- Fully remote companies have a huge advantage by recruiting talent from all over the world
+- Company culture is incredbily hard to get right, and it must be intentional
+- Even the best leader will need the support of a strong management team, and it is impossible to achieve scale without it. This was by far the hardest thing to get right.
+- Onboarding and training is probably the best investment a business owner can make. It's insane to hire someone, pay them a salary, then let them fail.
+- Talent attracts talent, and the opposite is also true. 
