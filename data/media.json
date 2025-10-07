@@ -47,6 +47,11 @@
           "description": "I've used my background in math/cs to explore the concept of drawing with sound. The idea here was to manipulate droplets based on audio input. It uses a 'Fast Fourier Transform' to map audio frequencies onto visual properties like motion, vibration, and expansion.",
           "attribution": "Karl Garske"
         }
+      ],
+      "pivots": [
+        "What technology have you built?",
+        "Do you use math in your work?",
+        "How did you learn about AI?"
       ]
     },
     {

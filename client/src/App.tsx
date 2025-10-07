@@ -8,17 +8,13 @@ import { Link } from 'react-router-dom';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { useTheme } from '@/components/theme-provider';
 import { FadingBackground } from './components/FadingBackground';
-import { InfoIcon } from 'lucide-react';
+import { GalleryVertical, InfoIcon, Lightbulb } from 'lucide-react';
 
 type PromptSubmission = {
   id: number;
   text: string;
 };
 
-/*
-refleck
-reflek.tech
-*/
 export function App() {
   const { setTheme } = useTheme();
   setTheme('system');
@@ -105,7 +101,7 @@ export function App() {
         const backdrop = item?.url ?? '';
         //console.log('selected backdrop:', backdrop);
         setBg(`${backdrop}?t=${Date.now()}`); //cache buster
-        setBgOpacity(0.7);
+        setBgOpacity(0.45);
         setDescription(item?.description ?? '');
         setAttribution(item?.attribution ?? '');
       }
@@ -124,12 +120,15 @@ export function App() {
 
     const promptText = prompt.trim();
     if (!promptText.length) return;
+    submit(promptText);
+  };
 
+  const submit = (text: string) => {
     setPrompt('');
     setBgOpacity(0);
     requestAnimationFrame(() => promptInputRef.current?.focus());
 
-    const submissionPayload: PromptSubmission = { id: Date.now(), text: promptText };
+    const submissionPayload: PromptSubmission = { id: Date.now(), text };
 
     if (!conversationId) {
       createConversation(undefined, {
@@ -159,9 +158,7 @@ export function App() {
           zIndex: '-10',
           opacity: bgOpacity,
         }} // shows through during fades/empty
-      >
-        {''}
-      </FadingBackground>
+      ></FadingBackground>
 
       <div className="relative px-8 md:px-16 lg:px-32 py-32 space-y-4 font-semibold">
         <ul className="flex justify-end items-center text-sm absolute top-16 right-8 lg:right-32">
@@ -199,7 +196,7 @@ export function App() {
           </Button>
         </form>
         {!isClassifying && description != '' && (
-          <div className="fixed right-32 bottom-64 text-muted-foreground cursor-pointer">
+          <div className="fixed right-8 lg:right-32 bottom-12 md:bottom-8 lg:top-64 text-muted-foreground cursor-pointer">
             <HoverCard
               openDelay={100}
               closeDelay={100}
@@ -208,13 +205,14 @@ export function App() {
               }}
             >
               <HoverCardTrigger className="flex items-center gap-2 text-primary font-semibold text-xl pr-8 w-fit">
-                <InfoIcon />
-                About the background
+                <GalleryVertical />
+                <div className="hidden lg:block">About the background</div>
+                <div className="lg:hidden">Background</div>
               </HoverCardTrigger>
               <HoverCardContent
                 side="top"
                 sideOffset={32}
-                className="bg-transparent text-2xl w-[400px]"
+                className="text-2xl w-[400px] bg-background/25"
               >
                 {description}
               </HoverCardContent>
@@ -240,6 +238,29 @@ export function App() {
             {conversationError && (
               <p className="text-sm text-red-600">Error: {(conversationError as Error).message}</p>
             )}
+            {!thinking &&
+              !isClassifying &&
+              classification &&
+              classification.score > 0.25 &&
+              classification.pivots.length > 0 && (
+                <div className="mt-12">
+                  <div className="text-2xl flex gap-2 items-center">
+                    <Lightbulb />
+                    Suggestions
+                  </div>
+                  <div className="flex flex-col md:flex-row gap-4 mt-4">
+                    {classification.pivots.map((pivot, i) => (
+                      <div
+                        className="font-mono font-medium text-base md:text-lg w-2/3 md:w-1/2 pr-16 cursor-pointer"
+                        key={i}
+                        onClick={() => submit(pivot)}
+                      >
+                        {pivot}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
           </div>
         </div>
       </div>

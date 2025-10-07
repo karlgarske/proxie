@@ -6,6 +6,7 @@ export type ClassificationResponse = {
   description: string | null;
   score: number;
   backdrops: { url: string; description: string; attribution: string }[];
+  pivots: string[];
 };
 
 async function fetchClassification(text: string): Promise<ClassificationResponse> {

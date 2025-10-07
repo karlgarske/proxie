@@ -6,10 +6,7 @@ import './index.css';
 import { App } from './App';
 import { ThemeProvider } from '@/components/theme-provider';
 
-const router = createBrowserRouter([
-  { path: '/', element: <App /> },
-  { path: '/hello', element: <div className="p-6">Hello World</div> },
-]);
+const router = createBrowserRouter([{ path: '/', element: <App /> }]);
 
 const queryClient = new QueryClient();
 

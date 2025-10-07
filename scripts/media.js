@@ -18,7 +18,7 @@ for (const resource of media.resources) {
       description: resource.description,
       embedding: FieldValue.vector(res),
       backdrops: resource.backdrops ?? [],
-      figures: resource.figures ?? [],
+      pivots: resource.pivots ?? [],
     },
     { merge: true }
   );
