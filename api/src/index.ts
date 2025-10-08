@@ -41,7 +41,7 @@ const model = new ChatOpenAI({
 });
 
 // builds conversation service with dependencies injected as config
-const CONVERSATION_TTL_MS = 1000 * 60 * 5; // 5 minutes
+const CONVERSATION_TTL_MS = 1000 * 60 * 30; // 30 minutes
 const conversationCache = lru<Conversation>(100, CONVERSATION_TTL_MS);
 const conversationService = conversationServiceFactory({
   idGenerator: uuidv4,

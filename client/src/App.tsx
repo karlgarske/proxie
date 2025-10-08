@@ -4,7 +4,7 @@ import { ConversationStream } from '@/components/ConversationStream';
 import type { ConversationStreamEvent } from '@/components/ConversationStream';
 import { useClassify } from '@/hooks/useClassify';
 import { useConversations } from '@/hooks/useConversations';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { useTheme } from '@/components/theme-provider';
 import { FadingBackground } from './components/FadingBackground';
@@ -170,7 +170,10 @@ export function App() {
           </li>
         </ul>
         <div className={`font-semibold ${controlsVisible ? 'opacity-100' : 'opacity-0'}`}>
-          Ask Karl Anything
+          Meet Karl's{' '}
+          <NavLink className="underline" to={`/?p=${encodeURI('What is a proxie')}`}>
+            Proxie
+          </NavLink>
         </div>
         <form
           onSubmit={handleSubmitPrompt}

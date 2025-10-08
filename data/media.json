@@ -5,7 +5,7 @@
       "description": "I currently live in San Francisco, near Dolores Heights.",
       "backdrops": [
         {
-          "url": "/assets/media/sf.webp",
+          "url": "https://storage.googleapis.com/static.proxie.chat/sf.webp",
           "description": "I've been around the world, but I'm always happy to call San Francisco my home.",
           "attribution": "https://sarowly.me/blog/ultimate-locals-travel-guide-to-sanfrancisco"
         }
@@ -14,15 +14,15 @@
     },
     {
       "id": "school",
-      "description": "I studied at UC San Diego (UCSD).",
+      "description": "I studied at UC San Diego (UCSD) in La Jolla, CA.",
       "backdrops": [
         {
-          "url": "/assets/media/geisel.jpg",
+          "url": "https://storage.googleapis.com/static.proxie.chat/geisel.jpg",
           "description": "I spent many hours studying in the Geisel Library at UCSD with amazing views looking onto the campus in La Jolla.",
           "attribution": "UC San Diego"
         },
         {
-          "url": "/assets/media/lajolla.jpg",
+          "url": "https://storage.googleapis.com/static.proxie.chat/lajolla.jpg",
           "description": "Nothing like a surf break in Cardiff to take the mind off of studying :)",
           "attribution": "https://unsplash.com/photos/two-surfers-walking-on-sand-going-on-water-X0rRYtJy0R8"
         }
@@ -34,10 +34,25 @@
       "description": "Gardening, cooking, and music are my main hobbies outside of work.",
       "backdrops": [
         {
-          "url": "/assets/media/yard.jpg",
+          "url": "https://storage.googleapis.com/static.proxie.chat/yard.jpg",
           "description": "The yard I designed and maintained at a former residence in Berkeley, CA.",
           "attribution": "ucsd"
         }
+      ]
+    },
+    {
+      "id": "experience",
+      "description": "I have a wide range of work experience.",
+      "backdrops": [
+        {
+          "url": "https://storage.googleapis.com/static.proxie.chat/experience.jpg",
+          "description": "",
+          "attribution": ""
+        }
+      ],
+      "pivots": [
+        "How has your experience shaped your perspective on tech for AEC?",
+        "How are you applying AI to the work you're doing?"
       ]
     },
     {
@@ -45,7 +60,7 @@
       "description": "I studied Mathematics and Computer Science.",
       "backdrops": [
         {
-          "url": "/assets/media/refraction.gif",
+          "url": "https://storage.googleapis.com/static.proxie.chat/refraction.gif",
           "description": "I've used my background in math/cs to explore the concept of drawing with sound. The idea here was to manipulate droplets based on audio input. It uses a 'Fast Fourier Transform' to map audio frequencies onto visual properties like motion, vibration, and expansion.",
           "attribution": "Karl Garske"
         }
@@ -57,7 +72,7 @@
       "description": "I was CEO and co-founder of Outer Labs from 2018 to 2024.",
       "backdrops": [
         {
-          "url": "/assets/media/ol.svg",
+          "url": "https://storage.googleapis.com/static.proxie.chat/ol.svg",
           "description": "When I was founding Outer Labs, I used colors and shapes to define our brand identity.",
           "attribution": "Outer Labs, Inc."
         }
