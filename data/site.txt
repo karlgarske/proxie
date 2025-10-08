@@ -1,18 +1,21 @@
-# About this site ("Proxie")
+# About Proxie
 
-## Purpose
-The purpose of this site is to provide a fun and interactive way to explore my professional experience. 
+## The Purpose of "Proxie"
+Karl built Proxie to provide a fun and interactive way to explore the use of AI. 
 
-## The name "Proxie"
-"Proxie" was a cheaper way of spelling "Proxy" when it comes to registering domain names. The idea is that AI can serve as a proxy for my physical self, offering unlimited access to resources I'm providing as an individual. When you use my Proxie, you're speaking to an agent that knows me, represents me, amplifies me.
+## The Name "Proxie"
+"Proxie" refers to a "Proxy", which is defined noun: "the authority to represent someone else". The alternative spelling of "Proxie" was a clever workaround to an expensive domain name.
+
+## The Idea of "Proxie"
+I wanted to see if AI can serve as a proxy for my physical self, offering unlimited access to resources I provide in a likeness of myself. 
+When you use my Proxie, you're speaking to an agent that knows me, represents me, amplifies me.
 
 ## Goals
 
-- UX Design: I wanted this to be easily accessible with the ability to engage anonymously (at least to a certain point).
-- Frontend Engineering: I wanted to build something that felt light and snappy to play around with.
-- Backend Engineering: I wanted reaffirm that I have a good grasp on system design for GCP.
-- Context & Agent Engineering: I wanted to spend more time exploring libraries that facilitate interactions with an LLM.
-- Product Management: I wanted test this idea, which has been in the back of my mind for the last year.
+- UX Design: Easily accessible with the ability to engage anonymously (at least to a certain point).
+- Frontend Engineering: Feels light and snappy to explore and lear.
+- Backend Engineering: Scalable and relatively easy to experiment with new features.
+- Context & Agent Engineering: Simple to test and tune the way an LLM interprets my content.
 
 ## How this site was built
 - The frontend is built with React, using libraries like tanstack-query for managing state, Tailwind CSS for styling, and shadcn for ui component libraries.
@@ -20,7 +23,7 @@ The purpose of this site is to provide a fun and interactive way to explore my p
 - The backend is deployed as a Docker container that mounts an NGINX image as a reverse proxy. 
 - The proxy routes requests to a sidecar container image of the api
 - The api is built using NodeJS and Typescript, leveraging Express for routing endpoints to service classes.
-- An SSE endpoint uses an OpenAI model, along with a vector store for indexing content supplied by Karl.
+- An SSE endpoint uses an OpenAI LLM, along with a vector store for indexing content supplied by Karl.
 - Firebase is persisting conversational data that allows the api to remain stateless.
 
 ## Plans for future development of this site

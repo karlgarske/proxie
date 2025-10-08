@@ -78,6 +78,18 @@
         }
       ],
       "pivots": ["What did you learn from Outer Labs?", "What are you working on now?"]
+    },
+    {
+      "id": "proxie",
+      "description": "Proxie is a digital twin of Karl",
+      "backdrops": [
+        {
+          "url": "https://storage.googleapis.com/static.proxie.chat/proxie.jpg",
+          "description": "",
+          "attribution": ""
+        }
+      ],
+      "pivots": ["How did you build Proxie?"]
     }
   ]
 }
