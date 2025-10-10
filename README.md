@@ -1,20 +1,11 @@
-# Simple Web App Monorepo
+# Proxie Monorepo
 
-Monorepo containing:
-
-- client: Vite + React + TypeScript + Tailwind + shadcn/ui structure + React Router + TanStack Query
-- api: Express + TypeScript + zod + Commander.js CLI
-- proxy: NGINX reverse proxy for static client and /api to api server
-
-This repo is designed for quick prototyping and Cloud Run deployment.
-
-## Structure
-
-- `client/`: Frontend app
-- `api/`: Backend API server
-- `proxy/`: NGINX config and Docker integration
-- `scripts/`: Helper zsh scripts (GCP setup, deploy)
-- `env/`: Environment configuration (stage/prod examples)
+- `api/`: Backend Node REST API server
+- `client/`: Frontend React app
+- `data/`: Dataset (currently static, deploy via /scripts/content.js)
+- `infra/`: Infrastructure definition for Kubernetes deploy
+- `proxy/`: NGINX config for ingress to client and api
+- `scripts/`: Helper zsh scripts (GCP setup, deploy, content)
 
 ## Prereqs
 
@@ -94,4 +85,3 @@ Authenticate, set project, create service account, and grant Secret Manager acce
 
 - This repo includes scaffolding for shadcn/ui usage. Install specific components with the `shadcn` CLI as needed.
 - Sensitive config should use GCP Secret Manager. See `env/stage.yaml` and `env/prod.yaml` for examples.
-
