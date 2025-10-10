@@ -11,7 +11,7 @@ export type Classification = {
   description: string | null;
   score: number;
   backdrops: any[];
-  pivots: string[];
+  suggestions: string[];
 };
 
 export interface IClassifyService {
@@ -35,19 +35,19 @@ export class MockClassifyService implements IClassifyService {
       score: 0.9,
       backdrops: [
         {
-          url: 'https://plus.unsplash.com/premium_vector-1741385696417-85b9645bbc09?q=80&w=1718&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+          url: 'https://storage.googleapis.com/static.proxie.chat/proxie.png',
           description:
             'I dont recall dreaming in color, and yet here we are. What if those who do are simply in a dream of their own?',
           attribution: 'Photo by Alex Knight on Unsplash',
         },
         {
-          url: '/assets/media/refraction.gif',
+          url: 'https://storage.googleapis.com/static.proxie.chat/proxie.png',
           description:
             "I've used my math/cs background to explore the art of sound. In this example, I map audio frequencies to size and motion using a Fourier Transform. It blends 3D geometries in real time using a Marching Cubes algorithm, and applies light refraction using a GLSL shader.",
           attribution: 'Animation by karl on Ama',
         },
       ],
-      pivots: [
+      suggestions: [
         'What tools are you using for prototyping?',
         'What is your approach to user research?',
       ],
@@ -85,7 +85,7 @@ export class ClassifyService implements IClassifyService {
         description: data.description ?? null,
         score: data.vector_distance,
         backdrops: data.backdrops ?? [],
-        pivots: data.pivots ?? [],
+        suggestions: data.suggestions ?? [],
       };
     }
   }

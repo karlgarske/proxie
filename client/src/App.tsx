@@ -251,20 +251,20 @@ export function App() {
               !isClassifying &&
               classification &&
               classification.score > 0.25 &&
-              classification.pivots.length > 0 && (
+              classification.suggestions.length > 0 && (
                 <div className="mt-12">
                   <div className="text-2xl flex gap-2 items-center">
                     <Lightbulb />
                     Suggestions
                   </div>
                   <div className="flex flex-col md:flex-row gap-4 mt-4">
-                    {classification.pivots.map((pivot, i) => (
+                    {classification.suggestions.map((suggestion, i) => (
                       <div
                         className="font-mono font-medium text-base md:text-lg w-2/3 md:w-1/2 pr-16 cursor-pointer"
                         key={i}
-                        onClick={() => submit(pivot)}
+                        onClick={() => submit(suggestion)}
                       >
-                        {pivot}
+                        {suggestion}
                       </div>
                     ))}
                   </div>
