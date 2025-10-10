@@ -1,20 +1,17 @@
-# Simple Web App Monorepo
+# Proxie
 
-Monorepo containing:
+Proxie is your personal AI agent. Publish your content, and your Proxie handles inbound communication on your behalf.
 
-- client: Vite + React + TypeScript + Tailwind + shadcn/ui structure + React Router + TanStack Query
-- api: Express + TypeScript + zod + Commander.js CLI
-- proxy: NGINX reverse proxy for static client and /api to api server
+## Folder Structure
 
-This repo is designed for quick prototyping and Cloud Run deployment.
+Monorepo using npm Workspaces:
 
-## Structure
-
-- `client/`: Frontend app
-- `api/`: Backend API server
-- `proxy/`: NGINX config and Docker integration
-- `scripts/`: Helper zsh scripts (GCP setup, deploy)
-- `env/`: Environment configuration (stage/prod examples)
+- `api/`: Backend Node REST API server
+- `client/`: Frontend React app
+- `data/`: Dataset (currently static, deploy via /scripts/content.js)
+- `infra/`: Infrastructure definition for Kubernetes deploy
+- `proxy/`: NGINX config for ingress to client and api
+- `scripts/`: Helper zsh scripts (GCP setup, deploy, content)
 
 ## Prereqs
 
@@ -31,13 +28,17 @@ npm install
 
 This installs workspace dependencies for `client`, `api`, and `proxy`.
 
+## Config
+
+The client fetches from `/api/*`. Configure backend host via `VITE_API_BASE_URL` in `client/.env.local`.
+
 ## Run (local dev)
 
-- API (port 3001):
+- API standalone (port 3001):
   ```sh
   npm run dev:api
   ```
-- Client (port 5173 by default):
+- Client standalone (port 5173 by default):
   ```sh
   npm run dev:client
   ```
@@ -46,9 +47,13 @@ This installs workspace dependencies for `client`, `api`, and `proxy`.
   npm run dev
   ```
 
-The client fetches from `/api/hello`. Configure backend host via `VITE_API_BASE_URL` in `client/.env.local`.
+### VSCode Debug (Optional)
 
-## Reverse Proxy (NGINX)
+- API and Client launch configs live in `.vscode/launch.json`.
+
+### Reverse Proxy (Optional)
+
+NGINX is used primarily for deployment to handle ingress for `client/dist` and `/api` to `http://localhost:3001`.
 
 - Build client and start API:
   ```sh
@@ -59,39 +64,22 @@ The client fetches from `/api/hello`. Configure backend host via `VITE_API_BASE_
   npm run proxy
   ```
 
-NGINX serves `client/dist` and proxies `/api` to `http://localhost:3001`. It listens on `$PORT`.
-
-## VS Code Debug
-
-- API and Client launch configs live in `.vscode/launch.json`.
-
 ## Build & Deploy
 
-- Build Docker image (multi-stage):
-  ```sh
-  docker build -t simple-web-app:local .
-  ```
-- Run locally (front on `$PORT`, api on `3001`):
-  ```sh
-  docker run --rm -p 8080:8080 -e PORT=8080 simple-web-app:local
-  ```
-- Deploy to Cloud Run (stage|prod):
-  ```sh
-  ./scripts/deploy.zsh stage
-  ```
+Build and deploy is handled by `./scripts/deploy.zsh` to create a Docker image and release to GCP as a knative `services.yaml`
 
-Deploy script verifies tests before deployment and injects secrets via Secret Manager.
+Note: Sensitive config should use GCP Secret Manager. See `.env.stage.yaml` and `.env.prod.yaml` for examples.
 
-## GCP Setup
+### GCP Setup
 
-Authenticate, set project, create service account, and grant Secret Manager access:
+Need to run setup at least once:
 
 ```sh
 ./scripts/gcp-setup.zsh --project <PROJECT_ID>
 ```
 
-## Notes
+### Deploy Script
 
-- This repo includes scaffolding for shadcn/ui usage. Install specific components with the `shadcn` CLI as needed.
-- Sensitive config should use GCP Secret Manager. See `env/stage.yaml` and `env/prod.yaml` for examples.
-
+```sh
+npm run deploy <stage|prod>
+```
