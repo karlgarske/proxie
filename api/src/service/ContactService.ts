@@ -9,11 +9,38 @@ export interface IContactService {
   send(message: string, fromAddress: string): void;
 }
 
+export function contactServiceFactory(config: ContactServiceConfig): IContactService {
+  if (config.env === 'test') {
+    console.warn('Using MockContactService in test environment');
+    return new MockContactService();
+  }
+  return new MailgunContactService(config);
+}
+
+export type ContactServiceConfig = {
+  env: string;
+  apiKey: string;
+  domain: string;
+  recipient: string;
+};
+
+export class MockContactService implements IContactService {
+  createTool(): ReturnType<typeof tool> {
+    throw new Error('Mock service cannot be used as a tool.');
+  }
+
+  send(message: string, fromAddress: string): void {
+    console.debug(`Sending mock message ${message} from ${fromAddress}`);
+  }
+}
+
 export class MailgunContactService implements IContactService {
   contactSchema = z.object({
     senderEmail: z.string().describe('The email of the user sending the message.'),
     message: z.string().describe('The message to send.'),
   });
+
+  constructor(private readonly config: ContactServiceConfig) {}
 
   createTool(): ReturnType<typeof tool> {
     return tool(
@@ -40,9 +67,9 @@ export class MailgunContactService implements IContactService {
       username: 'api',
       key: process.env.MAILGUN_API_KEY ?? '',
     });
-    const data = await mg.messages.create('mail.proxie.chat', {
-      from: 'Proxie <postmaster@mail.proxie.chat>',
-      to: ['Karl <karlgarske@gmail.com>'],
+    const data = await mg.messages.create(this.config.domain, {
+      from: `Proxie <postmaster@${this.config.domain}>`,
+      to: [this.config.recipient],
       subject: `New Message From Proxie User '${fromAddress}'`,
       text: `${fromAddress} said:\n${message}`,
     });

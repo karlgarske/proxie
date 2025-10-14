@@ -11,7 +11,7 @@ import { classifyFactory } from './service/ClassifyService.js';
 import { lru } from 'tiny-lru';
 import { v4 as uuidv4 } from 'uuid';
 import { OpenAIEmbeddings } from '@langchain/openai';
-import { MailgunContactService } from './service/ContactService.js';
+import { contactServiceFactory, MailgunContactService } from './service/ContactService.js';
 
 const app = express();
 app.use(express.json());
@@ -28,6 +28,9 @@ if (!vectorStoreId) throw new Error('VECTOR_STORE is not set');
 const projectId = process.env.PROJECT;
 if (!projectId) throw new Error('PROJECT is not set');
 
+const mailgunAPIKey = process.env.MAILGUN_API_KEY;
+if (!mailgunAPIKey) throw new Error('MAILGUN_API_KEY is not set');
+
 console.warn(`Using firestore for project:${projectId}`);
 const firestore = new Firestore({ projectId });
 
@@ -41,7 +44,12 @@ const model = new ChatOpenAI({
   apiKey: openAIApiKey,
 });
 
-const contactService = new MailgunContactService();
+const contactService = contactServiceFactory({
+  env: environment,
+  apiKey: mailgunAPIKey,
+  domain: 'mail.proxie.chat',
+  recipient: 'Karl <karlgarske@gmail.com>',
+});
 
 // builds conversation service with dependencies injected as config
 const CONVERSATION_TTL_MS = 1000 * 60 * 30; // 30 minutes
