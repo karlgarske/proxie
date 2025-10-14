@@ -84,5 +84,16 @@
       }
     ],
     "suggestions": ["How did you build Proxie?"]
+  },
+  "karl": {
+    "description": "Karl is a startup founder and engineer who created this site.",
+    "backdrops": [
+      {
+        "url": "https://static.proxie.chat/proxie.png",
+        "description": "",
+        "attribution": ""
+      }
+    ],
+    "suggestions": ["Why did Karl build Proxie?", "What technology does Karl work with?"]
   }
 }

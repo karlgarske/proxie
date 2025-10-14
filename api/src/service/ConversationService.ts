@@ -153,14 +153,17 @@ export class ConversationService implements IConversationService {
 
     //builds langchain runnable with tools and previous responseId if provided
     const runnable = this.config.model.withConfig({
-      tools: [{ type: 'file_search', vector_store_ids: [this.config.vectorStoreId] }],
+      //tools: [{ type: 'file_search', vector_store_ids: [this.config.vectorStoreId] }],
       tool_choice: 'auto',
       previous_response_id: responseId ?? null,
     });
 
     const agent = createReactAgent({
       llm: runnable,
-      tools: [this.config.contactService.createTool()],
+      tools: [
+        this.config.contactService.createTool(),
+        { type: 'file_search', vector_store_ids: [this.config.vectorStoreId] },
+      ],
     });
 
     const messages = [this.config.systemMessage, new HumanMessage(text)];

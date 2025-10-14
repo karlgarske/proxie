@@ -1,6 +1,6 @@
 # About Proxie
 
-## The Purpose of "Proxie"
+## Why Karl built "Proxie"
 Karl built Proxie to provide a fun and interactive way to explore the use of AI. 
 
 ## The Name "Proxie"
