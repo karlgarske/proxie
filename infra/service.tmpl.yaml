@@ -55,6 +55,8 @@ spec:
               value: $OPENAI_API_KEY
             - name: VECTOR_STORE
               value: $VECTOR_STORE
+            - name: MAILGUN_API_KEY
+              value: $MAILGUN_API_KEY
           resources:
             limits:
               cpu: '1'

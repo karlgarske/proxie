@@ -36,6 +36,7 @@ export SERVICE=$(grep '^SERVICE:' "$ENV_FILE" | awk '{print $2}')
 export REGION=${REGION_OVERRIDE:-$(grep '^REGION:' "$ENV_FILE" | awk '{print $2}')}
 export OPENAI_API_KEY=$(grep '^OPENAI_API_KEY:' "$ENV_FILE" | awk '{print $2}')
 export VECTOR_STORE=$(grep '^VECTOR_STORE:' "$ENV_FILE" | awk '{print $2}')
+export MAILGUN_API_KEY=$(grep '^MAILGUN_API_KEY:' "$ENV_FILE" | awk '{print $2}')
 
 if [[ -z "$PROJECT" || -z "$SERVICE" || -z "$REGION" ]]; then
   echo "Missing project/service/region in $ENV_FILE"; exit 1

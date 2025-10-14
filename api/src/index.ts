@@ -11,6 +11,7 @@ import { classifyFactory } from './service/ClassifyService.js';
 import { lru } from 'tiny-lru';
 import { v4 as uuidv4 } from 'uuid';
 import { OpenAIEmbeddings } from '@langchain/openai';
+import { MailgunContactService } from './service/ContactService.js';
 
 const app = express();
 app.use(express.json());
@@ -40,6 +41,8 @@ const model = new ChatOpenAI({
   apiKey: openAIApiKey,
 });
 
+const contactService = new MailgunContactService();
+
 // builds conversation service with dependencies injected as config
 const CONVERSATION_TTL_MS = 1000 * 60 * 30; // 30 minutes
 const conversationCache = lru<Conversation>(100, CONVERSATION_TTL_MS);
@@ -55,6 +58,7 @@ const conversationService = conversationServiceFactory({
   systemMessage,
   model,
   vectorStoreId,
+  contactService,
 });
 
 const embeddings = new OpenAIEmbeddings({ model: 'text-embedding-3-small', dimensions: 1536 });

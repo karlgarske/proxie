@@ -12,10 +12,13 @@
   },
   "dependencies": {
     "@google-cloud/firestore": "^7.8.0",
+    "@langchain/langgraph": "^0.4.9",
     "@langchain/openai": "^0.6.13",
     "commander": "^12.1.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "form-data": "^2.5.5",
+    "mailgun.js": "^12.1.1",
     "tiny-lru": "^11.4.5",
     "uuid": "^13.0.0",
     "zod": "^3.23.8"

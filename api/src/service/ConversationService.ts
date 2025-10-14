@@ -7,6 +7,7 @@ import {
   MessageContentText,
   SystemMessage,
 } from '@langchain/core/messages';
+import { createReactAgent } from '@langchain/langgraph/prebuilt';
 
 export type Conversation = {
   conversationId: string;
@@ -27,6 +28,7 @@ export type ConversationServiceConfig = {
   systemMessage: SystemMessage;
   model: ChatOpenAI;
   vectorStoreId: string;
+  contactService: IContactService;
 };
 
 export type ConversationResponseInput = {
@@ -45,6 +47,7 @@ export type ConversationStreamResult = {
 export type ConversationStreamEvent =
   | { event: 'started' }
   | { event: 'data'; text: string }
+  | { event: 'error'; message: string }
   | { event: 'ended'; result: ConversationStreamResult };
 
 export class ConversationError extends Error {
@@ -112,6 +115,8 @@ export class MockConversationService implements IConversationService {
   }
 }
 
+import { IContactService } from './ContactService.js';
+
 // Functional implementation of IConversationService
 export class ConversationService implements IConversationService {
   private readonly conversationsCollection = this.config.firestore.collection('conversations');
@@ -153,16 +158,29 @@ export class ConversationService implements IConversationService {
       previous_response_id: responseId ?? null,
     });
 
+    const agent = createReactAgent({
+      llm: runnable,
+      tools: [this.config.contactService.createTool()],
+    });
+
     const messages = [this.config.systemMessage, new HumanMessage(text)];
     const buffer: string[] = [];
-    const eventStream = runnable.streamEvents(messages, { version: 'v2' });
+    const events = agent.streamEvents({ messages }, { version: 'v2' });
 
-    for await (const event of eventStream) {
-      if (event.event === 'on_chat_model_start') {
+    console.log('starting streaming events...');
+    for await (const event of events) {
+      if (event.event == 'on_chain_start') {
+      } else if (event.event == 'on_chain_end') {
+      } else if (event.event == 'on_chain_stream') {
+      } else if (event.event == 'on_tool_start') {
+      } else if (event.event == 'on_tool_end') {
+      } else if (event.event == 'on_chat_model_start') {
+        //begin capture
         yield { event: 'started' };
-      } else if (event.event === 'on_chat_model_stream') {
+      } else if (event.event == 'on_chat_model_stream') {
         const chunk = event.data.chunk as AIMessageChunk;
         const content = chunk.content[0] as MessageContentText | undefined;
+
         if (content?.text) buffer.push(content.text);
 
         const status = chunk.response_metadata?.status;
@@ -170,11 +188,12 @@ export class ConversationService implements IConversationService {
           yield { event: 'data', text: buffer.join('') };
           buffer.length = 0;
         }
-      } else if (event.event === 'on_chat_model_end') {
+      } else if (event.event == 'on_chat_model_end') {
+        //end buffer
         const chunk = event.data.output as AIMessageChunk;
         const newResponseId = chunk.response_metadata?.id;
         if (!newResponseId) {
-          throw new ConversationError('Model response is missing an identifier.', 502);
+          yield { event: 'error', message: 'Model response is missing an identifier.' };
         }
         const expiration = this.config.cache.expire();
 
