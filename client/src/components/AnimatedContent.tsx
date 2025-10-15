@@ -1,3 +1,7 @@
+/*
+origin:
+https://reactbits.dev/animations/animated-content
+*/
 import React, { useRef, useEffect, ReactNode } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';

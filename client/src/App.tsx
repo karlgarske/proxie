@@ -8,18 +8,7 @@ import { Link } from 'react-router-dom';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { useTheme } from '@/components/theme-provider';
 import { FadingBackground } from './components/FadingBackground';
-import {
-  ActivityIcon,
-  BinaryIcon,
-  CodeIcon,
-  FlameIcon,
-  GalleryVertical,
-  GraduationCap,
-  InfoIcon,
-  Lightbulb,
-  SchoolIcon,
-  WrenchIcon,
-} from 'lucide-react';
+import { FlameIcon, GalleryVertical, GraduationCap, Lightbulb, WrenchIcon } from 'lucide-react';
 import { Label } from '@radix-ui/react-label';
 import AnimatedContent from '@/components/AnimatedContent';
 
@@ -51,7 +40,7 @@ export function App() {
   const { data: classification, isFetching: isClassifying } = useClassify(submission?.text ?? '');
   const [bg, setBg] = useState('');
   const [description, setDescription] = useState('');
-  const [attribution, setAttribution] = useState('');
+  const [_, setAttribution] = useState('');
   const [bgOpacity, setBgOpacity] = useState(0);
   const [bgInfo, setBgInfo] = useState(false);
   const [idea, setIdea] = useState<Idea>();
@@ -110,6 +99,11 @@ export function App() {
       clearInterval(rotateId); //idea rotation
     };
   }, []);
+
+  useEffect(() => {
+    const idea = ideas[ideaIndex % ideas.length];
+    setIdea(idea);
+  }, [ideaIndex]);
 
   useEffect(() => {
     const idea = ideas[ideaIndex % ideas.length];
@@ -224,6 +218,36 @@ export function App() {
           onSubmit={handleSubmitPrompt}
           className={`fixed ${bottom} left-8 right-8 md:left-auto md:p-2 flex flex-col gap-2 md:w-2/3 lg:right-32 lg:w-1/3 transition-all duration-400 ease-out ${controlsVisible ? `opacity-100 translate-y-0 ${submission ? '' : ''}` : 'opacity-0 translate-y-64'}`}
         >
+          <div className="flex flex-nowrap gap-2 items-stretch">
+            <input
+              ref={promptInputRef}
+              type="text"
+              value={prompt}
+              onChange={(event) => setPrompt(event.target.value)}
+              className="flex-1 min-w-0 md:min-w-[300px] rounded border-4 border-primary px-3 py-2 text-3xl focus:outline-none focus:border-primary focus:ring-4 bg-background"
+              placeholder="Ask about Karl..."
+              inputMode="text"
+              enterKeyHint="send"
+              disabled={thinking || isCreatingConversation}
+            />
+            <Button
+              type="submit"
+              disabled={!prompt.trim().length || isCreatingConversation}
+              className="text-3xl h-auto px-6 hidden md:block"
+            >
+              Ask
+            </Button>
+          </div>
+          {!submission && (
+            <div className="pl-2 pt-2 cursor-pointer" onClick={() => submit(idea!.text)}>
+              <AnimatedContent direction="horizontal" distance={150}>
+                <div className="flex gap-2 flex-nowrap items-center">
+                  {idea?.icon}
+                  {idea?.text}
+                </div>
+              </AnimatedContent>
+            </div>
+          )}
           <div className="flex flex-nowrap gap-2 items-stretch">
             <input
               ref={promptInputRef}
