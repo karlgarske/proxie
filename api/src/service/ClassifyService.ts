@@ -35,16 +35,16 @@ export class MockClassifyService implements IClassifyService {
       score: 0.9,
       backdrops: [
         {
-          url: 'https://storage.googleapis.com/static.proxie.chat/proxie.png',
+          url: 'https://static.proxie.chat/proxie.png',
           description:
             'I dont recall dreaming in color, and yet here we are. What if those who do are simply in a dream of their own?',
           attribution: 'Photo by Alex Knight on Unsplash',
         },
         {
-          url: 'https://storage.googleapis.com/static.proxie.chat/proxie.png',
+          url: 'https://static.proxie.chat/proxie.png',
           description:
             "I've used my math/cs background to explore the art of sound. In this example, I map audio frequencies to size and motion using a Fourier Transform. It blends 3D geometries in real time using a Marching Cubes algorithm, and applies light refraction using a GLSL shader.",
-          attribution: 'Animation by karl on Ama',
+          attribution: 'Animation by karl',
         },
       ],
       suggestions: [
