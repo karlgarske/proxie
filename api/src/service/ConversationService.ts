@@ -1,4 +1,4 @@
-import { Firestore } from '@google-cloud/firestore';
+import { Firestore, FieldValue } from '@google-cloud/firestore';
 import type { DocumentReference, Transaction } from '@google-cloud/firestore';
 import { ChatOpenAI } from '@langchain/openai';
 import {
@@ -120,6 +120,7 @@ import { IContactService } from './ContactService.js';
 // Functional implementation of IConversationService
 export class ConversationService implements IConversationService {
   private readonly conversationsCollection = this.config.firestore.collection('conversations');
+  private readonly logCollection = this.config.firestore.collection('log');
 
   constructor(private readonly config: ConversationServiceConfig) {}
 
@@ -279,11 +280,13 @@ export class ConversationService implements IConversationService {
     expires: Date;
   }): Promise<void> {
     const conversationRef = this.conversationsCollection.doc(conversationId);
+    const responseRef = conversationRef.collection('responses').doc(responseId);
 
     try {
       await this.config.firestore.runTransaction(async (transaction) => {
         this.updateConversationDoc(transaction, conversationRef, responseId, expires);
-        this.saveResponseDoc(transaction, conversationRef, responseId, prompt, content);
+        this.saveResponseDoc(transaction, responseRef, prompt, content);
+        this.saveLogDoc(transaction, conversationRef, responseRef, prompt, content);
       });
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -309,16 +312,31 @@ export class ConversationService implements IConversationService {
     );
   }
 
-  //saves individual response document in subcollection of conversation
-  private saveResponseDoc(
+  private saveLogDoc(
     transaction: Transaction,
     conversationRef: DocumentReference,
-    responseId: string,
+    responseRef: DocumentReference,
     prompt: string,
     content: AIMessageChunk['content']
   ): void {
-    const responseRef = conversationRef.collection('responses').doc(responseId);
+    const logRef = this.logCollection.doc();
+    transaction.set(logRef, {
+      env: this.config.env,
+      conversation: conversationRef,
+      response: responseRef,
+      prompt,
+      output: content.length == 1 ? (content[0] as any).text : content,
+      created: FieldValue.serverTimestamp(),
+    });
+  }
 
+  //saves individual response document in subcollection of conversation
+  private saveResponseDoc(
+    transaction: Transaction,
+    responseRef: DocumentReference,
+    prompt: string,
+    content: AIMessageChunk['content']
+  ): void {
     transaction.set(
       responseRef,
       {

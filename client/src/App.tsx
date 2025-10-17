@@ -248,36 +248,6 @@ export function App() {
               </AnimatedContent>
             </div>
           )}
-          <div className="flex flex-nowrap gap-2 items-stretch">
-            <input
-              ref={promptInputRef}
-              type="text"
-              value={prompt}
-              onChange={(event) => setPrompt(event.target.value)}
-              className="flex-1 min-w-0 md:min-w-[300px] rounded border-4 border-primary px-3 py-2 text-3xl focus:outline-none focus:border-primary focus:ring-4 bg-background"
-              placeholder="Ask about Karl..."
-              inputMode="text"
-              enterKeyHint="send"
-              disabled={thinking || isCreatingConversation}
-            />
-            <Button
-              type="submit"
-              disabled={!prompt.trim().length || isCreatingConversation}
-              className="text-3xl h-auto px-6 hidden md:block"
-            >
-              Ask
-            </Button>
-          </div>
-          {!submission && (
-            <div className="pl-2 pt-2 cursor-pointer" onClick={() => submit(idea!.text)}>
-              <AnimatedContent direction="horizontal" distance={150}>
-                <div className="flex gap-2 flex-nowrap items-center">
-                  {idea?.icon}
-                  {idea?.text}
-                </div>
-              </AnimatedContent>
-            </div>
-          )}
         </form>
 
         {!isClassifying && description != '' && (
