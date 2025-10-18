@@ -2,7 +2,7 @@
 origin:
 https://reactbits.dev/animations/animated-content
 */
-import React, { useRef, useEffect, ReactNode } from 'react';
+import React, { useRef, useEffect, ReactNode, useMemo } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -21,6 +21,7 @@ interface AnimatedContentProps {
   threshold?: number;
   delay?: number;
   onComplete?: () => void;
+  invalidate?: string;
 }
 
 const AnimatedContent: React.FC<AnimatedContentProps> = ({
@@ -36,8 +37,12 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
   threshold = 0.1,
   delay = 0,
   onComplete,
+  invalidate = undefined,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
+
+  //uses invalidate property to trigger change to children as a memo
+  const childMemo = useMemo(() => children, [invalidate]);
 
   useEffect(() => {
     const el = ref.current;
@@ -85,7 +90,7 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
     threshold,
     delay,
     onComplete,
-    children,
+    childMemo,
   ]);
 
   return <div ref={ref}>{children}</div>;

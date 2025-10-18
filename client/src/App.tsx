@@ -86,6 +86,7 @@ export function App() {
   ];
 
   useEffect(() => {
+    //console.log('use effect');
     //delays display of controls to draw users eye
     const timeoutId = setTimeout(() => setControlsVisible(true), 1000);
 
@@ -101,11 +102,7 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    const idea = ideas[ideaIndex % ideas.length];
-    setIdea(idea);
-  }, [ideaIndex]);
-
-  useEffect(() => {
+    //console.log('idea index');
     const idea = ideas[ideaIndex % ideas.length];
     setIdea(idea);
   }, [ideaIndex]);
@@ -240,7 +237,7 @@ export function App() {
           </div>
           {!submission && (
             <div className="pl-2 pt-2 cursor-pointer" onClick={() => submit(idea!.text)}>
-              <AnimatedContent direction="horizontal" distance={150}>
+              <AnimatedContent direction="horizontal" distance={150} invalidate={idea?.text}>
                 <div className="flex gap-2 flex-nowrap items-center">
                   {idea?.icon}
                   {idea?.text}
