@@ -1,7 +1,7 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: 'vibes-app'
+  name: 'proxie'
   labels:
     cloud.googleapis.com/location: 'us-central1'
   annotations:
@@ -57,6 +57,8 @@ spec:
               value: $VECTOR_STORE
             - name: MAILGUN_API_KEY
               value: $MAILGUN_API_KEY
+            - name: CONTACT_EMAIL
+              value: $CONTACT_EMAIL
           resources:
             limits:
               cpu: '1'

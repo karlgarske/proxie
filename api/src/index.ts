@@ -31,6 +31,9 @@ if (!projectId) throw new Error('PROJECT is not set');
 const mailgunAPIKey = process.env.MAILGUN_API_KEY;
 if (!mailgunAPIKey) throw new Error('MAILGUN_API_KEY is not set');
 
+const contactEmail = process.env.CONTACT_EMAIL;
+if (!contactEmail) throw new Error('CONTACT_EMAIL is not set');
+
 console.warn(`Using firestore for project:${projectId}`);
 const firestore = new Firestore({ projectId });
 
@@ -48,7 +51,7 @@ const contactService = contactServiceFactory({
   env: environment,
   apiKey: mailgunAPIKey,
   domain: 'mail.proxie.chat',
-  recipient: 'Karl <karlgarske@gmail.com>',
+  recipient: contactEmail,
 });
 
 // builds conversation service with dependencies injected as config
@@ -78,11 +81,10 @@ const classifyService = classifyFactory({
 
 registerRoutes(app, conversationService, classifyService);
 
-const PORT = 3001; // fixed in current nginx config
-
 let server: Server | undefined;
 
 try {
+  const PORT = 3001; // fixed in current nginx config
   server = app.listen(PORT, () => {
     console.log(`API server listening on http://localhost:${PORT}`);
   });

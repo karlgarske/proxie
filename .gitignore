@@ -14,6 +14,7 @@ build/
 .env.*
 env/*.secrets
 infra/service.yaml
+data
 
 # Editor
 .DS_Store
