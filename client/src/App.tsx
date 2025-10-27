@@ -32,16 +32,16 @@ type Idea = {
 
 const tiles = [
   {
-    title: 'Tell me something interesting about yourself.',
+    title: 'Tell me something interesting about Karl.',
   },
   {
-    title: 'Where did you receive your education?',
+    title: 'Where did Karl receive his education?',
   },
   {
-    title: 'What do you enjoy most about the work you do?',
+    title: 'What does Karl enjoy most about his work?',
   },
   {
-    title: 'What do you do in your spare time?',
+    title: 'What does Karl do in his spare time?',
   },
 ];
 
