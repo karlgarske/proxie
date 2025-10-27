@@ -70,4 +70,8 @@ envsubst < infra/service.tmpl.yaml > infra/service.yaml
 # load the images
 gcloud run services replace infra/service.yaml --region=us-central1 --project "$PROJECT"
 
+gcloud run services add-iam-policy-binding $SERVICE \
+  --region $REGION --project "$PROJECT" \
+  --member="allUsers" --role="roles/run.invoker"
+
 echo "Deployment complete."
