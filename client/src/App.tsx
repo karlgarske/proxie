@@ -8,7 +8,15 @@ import { Link } from 'react-router-dom';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { useTheme } from '@/components/theme-provider';
 import { FadingBackground } from './components/FadingBackground';
-import { FlameIcon, GalleryVertical, GraduationCap, Lightbulb, WrenchIcon } from 'lucide-react';
+import {
+  ArrowRightIcon,
+  FlameIcon,
+  GalleryVertical,
+  GraduationCap,
+  Lightbulb,
+  WrenchIcon,
+  ZapIcon,
+} from 'lucide-react';
 import { Label } from '@radix-ui/react-label';
 import AnimatedContent from '@/components/AnimatedContent';
 
@@ -21,6 +29,21 @@ type Idea = {
   icon: any;
   text: string;
 };
+
+const tiles = [
+  {
+    title: 'Tell me something interesting about yourself.',
+  },
+  {
+    title: 'Where did you receive your education?',
+  },
+  {
+    title: 'What do you enjoy most about the work you do?',
+  },
+  {
+    title: 'What do you do in your spare time?',
+  },
+];
 
 export function App() {
   const { setTheme } = useTheme();
@@ -86,7 +109,6 @@ export function App() {
   ];
 
   useEffect(() => {
-    //console.log('use effect');
     //delays display of controls to draw users eye
     const timeoutId = setTimeout(() => setControlsVisible(true), 1000);
 
@@ -102,7 +124,6 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    //console.log('idea index');
     const idea = ideas[ideaIndex % ideas.length];
     setIdea(idea);
   }, [ideaIndex]);
@@ -116,7 +137,7 @@ export function App() {
       setBgOpacity(1);
       setControlsVisible(false);
     } else {
-      setBgOpacity(0.45);
+      setBgOpacity(0.35);
       setControlsVisible(true);
     }
   }, [bgInfo]);
@@ -130,14 +151,12 @@ export function App() {
         const randomIndex = Math.floor(Math.random() * length);
         const item = classification.backdrops[randomIndex];
         const backdrop = item?.url ?? '';
-        //console.log('selected backdrop:', backdrop);
         setBg(`${backdrop}?t=${Date.now()}`); //cache buster
-        setBgOpacity(0.45);
+        setBgOpacity(0.35);
         setDescription(item?.description ?? '');
         setAttribution(item?.attribution ?? '');
       }
     } else {
-      //console.log('selected backdrop:');
       setBg('');
       setDescription('');
       setAttribution('');
@@ -175,147 +194,174 @@ export function App() {
   };
 
   //location of form input from bottom edge
-  const bottom = submission ? 'bottom-8 md:bottom-32' : 'bottom-32 md:bottom-64';
+  const bottom = submission ? 'bottom-8 pb-12 lg:bottom-32' : 'bottom-32 pb-12 lg:bottom-64';
 
   return (
     <>
-      <FadingBackground
-        imageUrl={bg} // string URL (changes trigger crossfade)
-        duration={400} // ms
-        easing="cubic-bezier(.2,.8,.2,1)" // any CSS timing function
-        style={{
-          position: 'fixed',
-          inset: '0',
-          zIndex: '-10',
-          opacity: bgOpacity,
-        }} // shows through during fades/empty
-      ></FadingBackground>
+      <div>
+        <div className="grid grid-cols-6 gap-12 mx-12 md:mx-32 xl:mx-48 my-8 min-h-[720px]">
+          {/* backdrop, not in layout */}
+          <FadingBackground
+            imageUrl={bg} // string URL (changes trigger crossfade)
+            duration={400} // ms
+            easing="cubic-bezier(.2,.8,.2,1)" // any CSS timing function
+            style={{
+              position: 'fixed',
+              inset: '0',
+              zIndex: '-10',
+              opacity: bgOpacity,
+            }} // shows through during fades/empty
+          />
 
-      <div className="relative px-8 md:px-16 lg:px-32 py-32 space-y-4 font-semibold">
-        <ul className="flex justify-end items-center text-sm absolute top-16 right-8 lg:right-32">
-          <li className="after:content-['|'] after:px-2 last:after:content-['']">
-            <Link to="https://www.linkedin.com/in/karlgarske">LinkedIn</Link>
-          </li>
-          <li className="after:content-['|'] after:px-2 last:after:content-['']">
-            <Link to="https://github.com/karlgarske">GitHub</Link>
-          </li>
-        </ul>
-        <div className={`font-semibold ${controlsVisible ? 'opacity-100' : 'opacity-0'}`}>
-          Meet Karl's{' '}
-          <Label
-            className="underline cursor-pointer"
-            onClick={() => {
-              submit('What is Proxie?');
-            }}
+          {/* top-nav, not in layout */}
+          <ul className="col-span-6 h-32 flex justify-end items-center text-base font-semibold">
+            <li className="after:content-['|'] after:px-2 last:after:content-['']">
+              <Link to="https://www.linkedin.com/in/karlgarske">LinkedIn</Link>
+            </li>
+            <li className="after:content-['|'] after:px-2 last:after:content-['']">
+              <Link to="https://github.com/karlgarske">GitHub</Link>
+            </li>
+          </ul>
+
+          <div
+            id="chat"
+            className={`col-span-6 lg:col-span-3 min-h-[400px] ${controlsVisible ? 'opacity-100' : 'opacity-0'}`}
           >
-            Proxie
-          </Label>
-        </div>
-        <form
-          onSubmit={handleSubmitPrompt}
-          className={`fixed ${bottom} left-8 right-8 md:left-auto md:p-2 flex flex-col gap-2 md:w-2/3 lg:right-32 lg:w-1/3 transition-all duration-400 ease-out ${controlsVisible ? `opacity-100 translate-y-0 ${submission ? '' : ''}` : 'opacity-0 translate-y-64'}`}
-        >
-          <div className="flex flex-nowrap gap-2 items-stretch">
-            <input
-              ref={promptInputRef}
-              type="text"
-              value={prompt}
-              onChange={(event) => setPrompt(event.target.value)}
-              className="flex-1 min-w-0 md:min-w-[300px] rounded border-4 border-primary px-3 py-2 text-3xl focus:outline-none focus:border-primary focus:ring-4 bg-background"
-              placeholder="Ask about Karl..."
-              inputMode="text"
-              enterKeyHint="send"
-              disabled={thinking || isCreatingConversation}
-            />
-            <Button
-              type="submit"
-              disabled={!prompt.trim().length || isCreatingConversation}
-              className="text-3xl h-auto px-6 hidden md:block"
-            >
-              Ask
-            </Button>
-          </div>
-          {!submission && (
-            <div className="pl-2 pt-2 cursor-pointer" onClick={() => submit(idea!.text)}>
-              <AnimatedContent direction="horizontal" distance={150} invalidate={idea?.text}>
-                <div className="flex gap-2 flex-nowrap items-center">
-                  {idea?.icon}
-                  {idea?.text}
-                </div>
-              </AnimatedContent>
-            </div>
-          )}
-        </form>
-
-        {!isClassifying && description != '' && (
-          <div className="fixed right-8 lg:right-32 bottom-12 md:bottom-8 lg:top-64 text-muted-foreground cursor-pointer">
-            <HoverCard
-              openDelay={100}
-              closeDelay={100}
-              onOpenChange={(open: boolean) => {
-                open ? setBgInfo(true) : setBgInfo(false);
-              }}
-            >
-              <HoverCardTrigger className="flex items-center gap-2 text-primary font-semibold text-xl pr-8 w-fit">
-                <GalleryVertical />
-                <div className="hidden lg:block">About the background</div>
-                <div className="lg:hidden">Background</div>
-              </HoverCardTrigger>
-              <HoverCardContent
-                side="top"
-                sideOffset={32}
-                className="text-2xl w-[400px] bg-background/25"
+            <div className={`font-semibold ${controlsVisible ? 'opacity-100' : 'opacity-0'}`}>
+              Meet Karl's{' '}
+              <Label
+                className="underline cursor-pointer"
+                onClick={() => {
+                  submit('What is Proxie?');
+                }}
               >
-                {description}
-              </HoverCardContent>
-            </HoverCard>
-          </div>
-        )}
+                Proxie
+              </Label>
+            </div>
+            <h1 className="text-4xl md:text-6xl font-bold mb-4">
+              {!submission &&
+                "Greetings! I'm Karl, and I made this site so we can get to know each other better."}
+              {submission && submission.text}
+            </h1>
 
-        <div id="chat" className={`max-w-[680px] ${controlsVisible ? 'opacity-100' : 'opacity-0'}`}>
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            {!submission &&
-              "Greetings! I'm Karl, and I made this site so we can get to know each other better."}
-            {submission && submission.text}
-          </h1>
-
-          <div className="flex flex-col justify-start mb-[400px]">
-            <ConversationStream
-              conversationId={conversationId}
-              promptText={submission?.text}
-              submissionKey={submission?.id}
-              debug={false}
-              onEvent={handleConversationStreamEvent}
-            />
-            {conversationError && (
-              <p className="text-sm text-red-600">Error: {(conversationError as Error).message}</p>
-            )}
-            {!thinking &&
-              !isClassifying &&
-              classification &&
-              classification.score > 0.25 &&
-              classification.suggestions.length > 0 && (
-                <div className="mt-12">
-                  <div className="text-2xl flex gap-2 items-center">
-                    <Lightbulb />
-                    Suggestions
-                  </div>
-                  <div className="flex flex-col md:flex-row gap-4 mt-4">
+            <div className="flex flex-col justify-start mb-[200px]">
+              <ConversationStream
+                conversationId={conversationId}
+                promptText={submission?.text}
+                submissionKey={submission?.id}
+                debug={false}
+                onEvent={handleConversationStreamEvent}
+              />
+              {conversationError && (
+                <p className="text-sm text-red-600">
+                  Error: {(conversationError as Error).message}
+                </p>
+              )}
+              {!thinking &&
+                !isClassifying &&
+                classification &&
+                classification.score > 0.25 &&
+                classification.suggestions.length > 0 && (
+                  <div className="flex gap-12 mt-16">
                     {classification.suggestions.map((suggestion, i) => (
                       <div
-                        className="font-mono font-medium text-base md:text-lg w-2/3 md:w-1/2 pr-16 cursor-pointer"
+                        className="flex flex-col gap-4 font-semibold text-lg md:text-3xl cursor-pointer py-6"
                         key={i}
                         onClick={() => submit(suggestion)}
                       >
                         {suggestion}
+                        <ArrowRightIcon />
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
+                )}
+            </div>
           </div>
+
+          {/* backdrop info */}
+          {!isClassifying && description != '' && (
+            <div className="flex justify-center col-span-3 col-start-4 h-fit sticky lg:top-72 text-muted-foreground cursor-pointer">
+              <HoverCard
+                openDelay={100}
+                closeDelay={100}
+                onOpenChange={(open: boolean) => {
+                  open ? setBgInfo(true) : setBgInfo(false);
+                }}
+              >
+                <HoverCardTrigger className="flex items-center gap-2 text-primary font-semibold text-xl pr-8 w-fit">
+                  <GalleryVertical />
+                  <div className="hidden lg:block">About the background</div>
+                  <div className="lg:hidden">Background</div>
+                </HoverCardTrigger>
+                <HoverCardContent
+                  side="top"
+                  sideOffset={32}
+                  className="text-2xl w-[400px] bg-background/25"
+                >
+                  {description}
+                </HoverCardContent>
+              </HoverCard>
+            </div>
+          )}
+
+          {/* floating input, not in grid layout */}
+          <form
+            onSubmit={handleSubmitPrompt}
+            className={`sticky col-span-6 lg:col-span-3 lg:col-start-4 ${bottom} flex flex-col items-center justify-end gap-2 transition-all duration-400 ease-out ${controlsVisible ? `opacity-100 translate-y-0 ${submission ? '' : ''}` : 'opacity-0 translate-y-64'}`}
+          >
+            <div className="flex flex-nowrap gap-2">
+              <input
+                ref={promptInputRef}
+                type="text"
+                value={prompt}
+                onChange={(event) => setPrompt(event.target.value)}
+                className="w-full rounded border-4 border-primary px-3 py-2 text-3xl focus:outline-none focus:border-primary focus:ring-4 bg-background"
+                placeholder="Ask about Karl..."
+                inputMode="text"
+                enterKeyHint="send"
+                disabled={thinking || isCreatingConversation}
+              />
+              <Button
+                type="submit"
+                disabled={!prompt.trim().length || isCreatingConversation}
+                className="text-3xl h-auto px-6 hidden md:block"
+              >
+                Ask
+              </Button>
+            </div>
+            {!submission && (
+              <div className="pl-2 pt-2 cursor-pointer" onClick={() => submit(idea!.text)}>
+                <AnimatedContent direction="horizontal" distance={150} invalidate={idea?.text}>
+                  <div className="flex gap-2 flex-nowrap items-center font-semibold">
+                    {idea?.icon}
+                    {idea?.text}
+                  </div>
+                </AnimatedContent>
+              </div>
+            )}
+          </form>
         </div>
       </div>
+      {/* tile layout for simple jumping off points */}
+      {!submission && (
+        <div className="grid grid-cols-6">
+          <div className="col-span-6 lg:col-span-5 grid grid-cols-6 mx-0 mt-12 md:pt-12 md:mx-24 lg:mx-32">
+            {tiles.map((tile, i) => (
+              <div
+                key={i}
+                className="col-span-6 lg:col-span-2 px-12 py-6 xl:p-16 lg:h-96 bg-background border border-separate"
+              >
+                <h1
+                  className="text-2xl lg:text-4xl font-semibold cursor-pointer"
+                  onClick={() => submit(tile.title)}
+                >
+                  {tile.title}
+                </h1>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </>
   );
 }

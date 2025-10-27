@@ -41,7 +41,7 @@ export class MockClassifyService implements IClassifyService {
           attribution: 'Photo by Alex Knight on Unsplash',
         },
         {
-          url: 'https://static.proxie.chat/proxie.png',
+          url: 'https://static.proxie.chat/yard.jpg',
           description:
             "I've used my math/cs background to explore the art of sound. In this example, I map audio frequencies to size and motion using a Fourier Transform. It blends 3D geometries in real time using a Marching Cubes algorithm, and applies light refraction using a GLSL shader.",
           attribution: 'Animation by karl',
