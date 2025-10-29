@@ -8,14 +8,14 @@ import { Link } from 'react-router-dom';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { useTheme } from '@/components/theme-provider';
 import { FadingBackground } from './components/FadingBackground';
+import { type Tile, TiledItems } from './components/TiledItems';
 import {
   ArrowRightIcon,
-  FlameIcon,
   GalleryVertical,
   GraduationCap,
-  Lightbulb,
+  HeartIcon,
+  SproutIcon,
   WrenchIcon,
-  ZapIcon,
 } from 'lucide-react';
 import { Label } from '@radix-ui/react-label';
 import AnimatedContent from '@/components/AnimatedContent';
@@ -25,24 +25,20 @@ type PromptSubmission = {
   text: string;
 };
 
-type Idea = {
-  icon: any;
+type Suggestion = Tile & {
+  icon?: any;
   text: string;
 };
 
-const tiles = [
+/* todo: static for initial prototype. will make dynamic if this is being used */
+const suggestions: Suggestion[] = [
+  { text: 'What are you working on now?', icon: <WrenchIcon /> },
+  { text: 'What did you study in college?', icon: <GraduationCap /> },
   {
-    title: 'Tell me something interesting about Karl.',
+    text: 'What do you enjoy most about your work?',
+    icon: <HeartIcon />,
   },
-  {
-    title: 'Where did Karl receive his education?',
-  },
-  {
-    title: 'What does Karl enjoy most about his work?',
-  },
-  {
-    title: 'What does Karl do in his spare time?',
-  },
+  { text: 'What do you do in your spare time?', icon: <SproutIcon /> },
 ];
 
 export function App() {
@@ -66,8 +62,8 @@ export function App() {
   const [_, setAttribution] = useState('');
   const [bgOpacity, setBgOpacity] = useState(0);
   const [bgInfo, setBgInfo] = useState(false);
-  const [idea, setIdea] = useState<Idea>();
-  const [ideaIndex, setIdeaIndex] = useState<number>(0);
+  const [suggestion, setSuggestion] = useState<Suggestion>();
+  const [suggestionIndex, setSuggestionIndex] = useState<number>(0);
 
   const handleConversationStreamEvent = useCallback(
     (event: ConversationStreamEvent) => {
@@ -102,31 +98,25 @@ export function App() {
     }
   }, [conversation]);
 
-  const ideas = [
-    { icon: <GraduationCap />, text: 'Where did you go to school?' },
-    { icon: <WrenchIcon />, text: 'What are you working on now?' },
-    { icon: <FlameIcon />, text: 'How would you describe yourself?' },
-  ];
-
   useEffect(() => {
     //delays display of controls to draw users eye
     const timeoutId = setTimeout(() => setControlsVisible(true), 1000);
 
-    //rotates an idea to ask about
+    //rotates through suggestions
     const rotateId = setInterval(() => {
-      setIdeaIndex((prev) => prev + 1);
+      setSuggestionIndex((prev) => prev + 1);
     }, 5000);
 
     return () => {
-      clearTimeout(timeoutId); //
-      clearInterval(rotateId); //idea rotation
+      clearTimeout(timeoutId);
+      clearInterval(rotateId);
     };
   }, []);
 
   useEffect(() => {
-    const idea = ideas[ideaIndex % ideas.length];
-    setIdea(idea);
-  }, [ideaIndex]);
+    const value = suggestions[suggestionIndex % suggestions.length];
+    setSuggestion(value);
+  }, [suggestionIndex]);
 
   useEffect(() => {
     promptInputRef.current?.focus();
@@ -194,12 +184,14 @@ export function App() {
   };
 
   //location of form input from bottom edge
-  const bottom = submission ? 'bottom-8 pb-12 lg:bottom-32' : 'bottom-32 pb-12 lg:bottom-64';
+  const bottom = submission
+    ? 'bottom-8 pb-12 lg:bottom-32'
+    : 'bottom-8 md:bottom-32 lg:bottom-64 pb-12';
 
   return (
     <>
       <div>
-        <div className="grid grid-cols-6 gap-12 mx-12 md:mx-32 xl:mx-48 my-8 min-h-[720px]">
+        <div className="grid grid-cols-6 gap-6 md:gap-12 mx-8 md:mx-32 xl:mx-48 my-8 min-h-[720px]">
           {/* backdrop, not in layout */}
           <FadingBackground
             imageUrl={bg} // string URL (changes trigger crossfade)
@@ -214,7 +206,7 @@ export function App() {
           />
 
           {/* top-nav, not in layout */}
-          <ul className="col-span-6 h-32 flex justify-end items-center text-base font-semibold">
+          <ul className="col-span-6 h-16 md:h-32 flex justify-end items-center text-base font-semibold">
             <li className="after:content-['|'] after:px-2 last:after:content-['']">
               <Link to="https://www.linkedin.com/in/karlgarske">LinkedIn</Link>
             </li>
@@ -223,6 +215,7 @@ export function App() {
             </li>
           </ul>
 
+          {/* chat content */}
           <div
             id="chat"
             className={`col-span-6 lg:col-span-3 min-h-[400px] ${controlsVisible ? 'opacity-100' : 'opacity-0'}`}
@@ -238,9 +231,12 @@ export function App() {
                 Proxie
               </Label>
             </div>
+
             <h1 className="text-4xl md:text-6xl font-bold mb-4">
+              {/* initial state when no prompt given */}
               {!submission &&
                 "Greetings! I'm Karl, and I made this site so we can get to know each other better."}
+              {/* display prompt */}
               {submission && submission.text}
             </h1>
 
@@ -257,6 +253,7 @@ export function App() {
                   Error: {(conversationError as Error).message}
                 </p>
               )}
+              {/* show most relevant suggested topics if prompt classification yields results */}
               {!thinking &&
                 !isClassifying &&
                 classification &&
@@ -329,12 +326,17 @@ export function App() {
                 Ask
               </Button>
             </div>
+            {/* show some animated suggestions to draw attentiona and get ideas flowing */}
             {!submission && (
-              <div className="pl-2 pt-2 cursor-pointer" onClick={() => submit(idea!.text)}>
-                <AnimatedContent direction="horizontal" distance={150} invalidate={idea?.text}>
+              <div className="pl-2 pt-2 cursor-pointer" onClick={() => submit(suggestion!.text)}>
+                <AnimatedContent
+                  direction="horizontal"
+                  distance={150}
+                  invalidate={suggestion?.text}
+                >
                   <div className="flex gap-2 flex-nowrap items-center font-semibold">
-                    {idea?.icon}
-                    {idea?.text}
+                    {suggestion?.icon}
+                    {suggestion?.text}
                   </div>
                 </AnimatedContent>
               </div>
@@ -342,24 +344,14 @@ export function App() {
           </form>
         </div>
       </div>
-      {/* tile layout for simple jumping off points */}
+      {/* show some simple clickable jumping off points if user has scrolled here */}
       {!submission && (
         <div className="grid grid-cols-6">
-          <div className="col-span-6 lg:col-span-5 grid grid-cols-6 mx-0 mt-12 md:pt-12 md:mx-24 lg:mx-32">
-            {tiles.map((tile, i) => (
-              <div
-                key={i}
-                className="col-span-6 lg:col-span-2 px-12 py-6 xl:p-16 lg:h-96 bg-background border border-separate"
-              >
-                <h1
-                  className="text-2xl lg:text-4xl font-semibold cursor-pointer"
-                  onClick={() => submit(tile.title)}
-                >
-                  {tile.title}
-                </h1>
-              </div>
-            ))}
-          </div>
+          <TiledItems
+            className="col-span-6 lg:col-span-5"
+            items={suggestions}
+            onSelect={(item: Tile) => submit(item.text)}
+          />
         </div>
       )}
     </>
