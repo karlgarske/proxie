@@ -3,11 +3,11 @@ import type { DocumentReference, Transaction } from '@google-cloud/firestore';
 import { ChatOpenAI } from '@langchain/openai';
 import {
   AIMessageChunk,
+  ContentBlock,
   HumanMessage,
-  MessageContentText,
   SystemMessage,
 } from '@langchain/core/messages';
-import { createReactAgent } from '@langchain/langgraph/prebuilt';
+import { createAgent } from 'langchain';
 
 export type Conversation = {
   conversationId: string;
@@ -120,7 +120,6 @@ import { IContactService } from './ContactService.js';
 // Functional implementation of IConversationService
 export class ConversationService implements IConversationService {
   private readonly conversationsCollection = this.config.firestore.collection('conversations');
-  private readonly logCollection = this.config.firestore.collection('log');
 
   constructor(private readonly config: ConversationServiceConfig) {}
 
@@ -154,13 +153,15 @@ export class ConversationService implements IConversationService {
 
     //builds langchain runnable with tools and previous responseId if provided
     const runnable = this.config.model.withConfig({
-      //tools: [{ type: 'file_search', vector_store_ids: [this.config.vectorStoreId] }],
       tool_choice: 'auto',
       previous_response_id: responseId ?? null,
+      metadata: {
+        env: this.config.env,
+      },
     });
 
-    const agent = createReactAgent({
-      llm: runnable,
+    const agent = createAgent({
+      model: runnable,
       tools: [
         this.config.contactService.createTool(),
         { type: 'file_search', vector_store_ids: [this.config.vectorStoreId] },
@@ -183,7 +184,7 @@ export class ConversationService implements IConversationService {
         yield { event: 'started' };
       } else if (event.event == 'on_chat_model_stream') {
         const chunk = event.data.chunk as AIMessageChunk;
-        const content = chunk.content[0] as MessageContentText | undefined;
+        const content = chunk.content[0] as ContentBlock.Text;
 
         if (content?.text) buffer.push(content.text);
 
@@ -195,7 +196,7 @@ export class ConversationService implements IConversationService {
       } else if (event.event == 'on_chat_model_end') {
         //end buffer
         const chunk = event.data.output as AIMessageChunk;
-        const newResponseId = chunk.response_metadata?.id;
+        const newResponseId = chunk.response_metadata?.id as string;
         if (!newResponseId) {
           yield { event: 'error', message: 'Model response is missing an identifier.' };
         }
@@ -286,7 +287,6 @@ export class ConversationService implements IConversationService {
       await this.config.firestore.runTransaction(async (transaction) => {
         this.updateConversationDoc(transaction, conversationRef, responseId, expires);
         this.saveResponseDoc(transaction, responseRef, prompt, content);
-        this.saveLogDoc(transaction, conversationRef, responseRef, prompt, content);
       });
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -310,24 +310,6 @@ export class ConversationService implements IConversationService {
       },
       { merge: true }
     );
-  }
-
-  private saveLogDoc(
-    transaction: Transaction,
-    conversationRef: DocumentReference,
-    responseRef: DocumentReference,
-    prompt: string,
-    content: AIMessageChunk['content']
-  ): void {
-    const logRef = this.logCollection.doc();
-    transaction.set(logRef, {
-      env: this.config.env,
-      conversation: conversationRef,
-      response: responseRef,
-      prompt,
-      output: content.length == 1 ? (content[0] as any).text : content,
-      created: FieldValue.serverTimestamp(),
-    });
   }
 
   //saves individual response document in subcollection of conversation
